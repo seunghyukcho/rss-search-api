@@ -7,9 +7,7 @@ env:
   global:
     secure: myJhHIj28eYcTv/pBMIswc2es1VLFZOFPYfUEaOO5skgAAMOZhbX5R9JGrvrQzLwqY1nDWUhYI3Vi44CsdI0tCmZazooRVi/JuMvvUj7RkqrZ/XSiJ+pMP6hWfCZVU+i0Z6VhZiiE3GIyPn1E7dXqsgZmTs5Iv0G5k6uv0QPKjZbn5CenRnSZS4jnmLuIv1e/McZ8B0e5l5c8j0o9H71kwFOB7nsPOEizUcRuOkXG+nuTK4OnqDtPgRQWA9N5RhJXSezmO9+lUKhNJ7x2ZlmMgwFhmilldGNhb3k+Pj7i5bhFwQtaCjSV2p7Fejskf8X3QQo4jsi+EMd+0+ro1cCjUTXDfvkpzblcXigQosgiJ4mXXZQPK7/YZCdByHxgBL+bp7bmrRXoZp5nM2nOYgfgTwSbZShZYqHm6mh2xHyMcGu4gIp0U/7FiCa3aeziDl2ij69fukpggSxtauMgVYBQfIz3r1VxAbCnMv2grXPPxS/pvHXlkpS/HK8cwrC3FSFMU/0FNKAD29ztaWC9NgQhSdrZiptTi516ptyRHEc+plfH/lFGX5ibjoZcwbzoMazfFbjqRR3oi/ONtOnBFNCmWxY3vfvcZWI/ODoEcimm3GKlTghoanlYejcfpRpiPtm8XMKHL9dqIf9qWvyFtC58VCpQv4ReRa3eUlr97io9L0=
 before_install:
-  - curl -L -s https://github.com/golang/dep/releases/download/v${DEP_VERSION}/dep-linux-amd64
-    -o $GOPATH/bin/dep
-  - chmod +x $GOPATH/bin/dep
+  - go get github.com/golang/dep/cmd/dep
 install:
   - $GOPATH/bin/dep ensure
   - go get github.com/mattn/goveralls
