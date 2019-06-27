@@ -3,9 +3,12 @@ package main
 import (
 	"fmt"
 	"github.com/mmcdole/gofeed"
+	"github.com/shhj1998/d2-fest-backend/controller"
 )
 
 func main() {
+	controller.Sample(2)
+
 	fp := gofeed.NewParser()
 	feed, err := fp.ParseURL("https://media.daum.net/syndication/entertain.rss")
 
