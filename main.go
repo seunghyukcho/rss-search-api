@@ -26,6 +26,7 @@ func main() {
 	if err != nil {
 		panic(err)
 	}
+	defer conn.Close()
 
 	dbInstance := &Env{db: conn}
 
