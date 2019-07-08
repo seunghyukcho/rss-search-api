@@ -15,7 +15,7 @@ func (env *Env) getChannel(ctx *gin.Context) {
 	rows, err := env.db.Query(`SELECT * FROM Channel`)
 
 	if err != nil {
-		ctx.String(http.StatusNotFound, err.Error())
+		ctx.String(http.StatusBadRequest, err.Error())
 	} else {
 		for rows.Next() {
 			rows.Scan(&Id, &channel.Title, &channel.Description, &channel.Link, &RSSLink)
