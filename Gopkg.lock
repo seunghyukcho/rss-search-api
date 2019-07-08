@@ -2,6 +2,22 @@
 
 
 [[projects]]
+  digest = "1:573fa46f8d413d4bc3f7cc5e86b2c43cb21559f4fb0a19d9874d228e28fdc07c"
+  name = "github.com/PuerkitoBio/goquery"
+  packages = ["."]
+  pruneopts = "UT"
+  revision = "2d2796f41742ece03e8086188fa4db16a3a0b458"
+  version = "v1.5.0"
+
+[[projects]]
+  digest = "1:66b3310cf22cdc96c35ef84ede4f7b9b370971c4025f394c89a2638729653b11"
+  name = "github.com/andybalholm/cascadia"
+  packages = ["."]
+  pruneopts = "UT"
+  revision = "901648c87902174f774fac311d7f176f8647bdaa"
+  version = "v1.0.0"
+
+[[projects]]
   digest = "1:3ee1d175a75b911a659fbd860060874c4f503e793c5870d13e5a0ede529a63cf"
   name = "github.com/gin-contrib/sse"
   packages = ["."]
@@ -63,16 +79,19 @@
   version = "v0.0.8"
 
 [[projects]]
-  digest = "1:47f951f3310976af7a7c43e5a0da7d789f0ebdf8f15de3c65d77fbcec24e43e6"
+  branch = "master"
+  digest = "1:367e3c66a665991bd2a53e41cf7b971f1cb11722863e0e01b5a20501ce95b99e"
   name = "github.com/mmcdole/gofeed"
   packages = [
+    ".",
+    "atom",
     "extensions",
     "internal/shared",
     "rss",
   ]
   pruneopts = "UT"
-  revision = "42010a154d249f5f753dfe03a6390b59671e403e"
-  version = "v1.0.0-beta2"
+  revision = "0e68beaf6fdf215bd1fe42a09f6de292c7032359"
+  source = "https://github.com/mmcdole/gofeed.git"
 
 [[projects]]
   branch = "master"
@@ -185,6 +204,7 @@
     "github.com/gin-gonic/gin",
     "github.com/go-sql-driver/mysql",
     "github.com/joho/godotenv",
+    "github.com/mmcdole/gofeed",
     "github.com/mmcdole/gofeed/rss",
   ]
   solver-name = "gps-cdcl"

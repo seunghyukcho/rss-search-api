@@ -1,16 +1,14 @@
 package main
 
 import (
-	"fmt"
 	"github.com/gin-gonic/gin"
-	"github.com/mmcdole/gofeed/rss"
+	"github.com/mmcdole/gofeed"
 	"net/http"
 )
 
 func (env *Env) getItem(ctx *gin.Context) {
-	var Id int
-	var RSSLink string
-	var item rss.Item
+	var err error
+	var items []gofeed.Item
 
 	rows, err := env.db.Query(`SELECT * FROM Item`)
 
@@ -18,11 +16,20 @@ func (env *Env) getItem(ctx *gin.Context) {
 		ctx.String(http.StatusBadRequest, err.Error())
 	} else {
 		for rows.Next() {
-			rows.Scan(&item.GUID.Value, &item.Title, &item.Link, &item.Enclosure.URL, &item.Description, &item.PubDate)
+			var item gofeed.Item
 
-			fmt.Println(Id, RSSLink)
+			err = rows.Scan(&item.GUID, &item.Title, &item.Link, &item.Description, &item.Published)
+			if err != nil {
+				break
+			}
+
+			items = append(items, item)
 		}
 
-		ctx.String(http.StatusOK, "item exists")
+		if err != nil {
+			ctx.String(http.StatusBadRequest, err.Error())
+		} else {
+			ctx.JSON(http.StatusOK, items)
+		}
 	}
 }

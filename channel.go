@@ -1,29 +1,38 @@
 package main
 
 import (
-	"fmt"
 	"github.com/gin-gonic/gin"
-	"github.com/mmcdole/gofeed/rss"
+	"github.com/mmcdole/gofeed"
 	"net/http"
 )
 
 func (env *Env) getChannel(ctx *gin.Context) {
+	var err error
 	var Id int
 	var RSSLink string
-	var channel rss.Feed
+	var channels []gofeed.Feed
 
 	rows, err := env.db.Query(`SELECT * FROM Channel`)
 
 	if err != nil {
 		ctx.String(http.StatusBadRequest, err.Error())
 	} else {
+		var channel gofeed.Feed
 		for rows.Next() {
-			rows.Scan(&Id, &channel.Title, &channel.Description, &channel.Link, &RSSLink)
+			err = rows.Scan(&Id, &channel.Title, &channel.Description, &channel.Link, &RSSLink)
 
-			fmt.Println(Id, RSSLink)
+			if err != nil {
+				break
+			}
+
+			channels = append(channels, channel)
 		}
 
-		ctx.String(http.StatusOK, "channel exists")
+		if err != nil {
+			ctx.JSON(http.StatusBadRequest, gin.H{"message": err.Error()})
+		} else {
+			ctx.JSON(http.StatusOK, channels)
+		}
 	}
 
 }
