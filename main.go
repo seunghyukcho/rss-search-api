@@ -1,23 +1,15 @@
 package main
 
-import (
-	"fmt"
-	"github.com/mmcdole/gofeed"
-	"github.com/shhj1998/rss-search-api/controller"
-)
+import "github.com/gin-gonic/gin"
 
 func main() {
-	controller.Sample(2)
+	r := gin.Default()
 
-	fp := gofeed.NewParser()
-	feed, err := fp.ParseURL("https://media.daum.net/syndication/entertain.rss")
+	r.GET("/ping", func(c *gin.Context) {
+		c.JSON(200, gin.H{
+			"message": "pong",
+		})
+	})
 
-	if err != nil {
-		panic(err)
-	}
-
-	fmt.Println(feed.Title)
-	for _, item := range feed.Items {
-		fmt.Println(item.Description)
-	}
+	r.Run()
 }
