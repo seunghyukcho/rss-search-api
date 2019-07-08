@@ -1,4 +1,4 @@
-# Korea RSS Search API
+# RSS Search API
 
 [![Build Status](https://travis-ci.org/shhj1998/rss-search-api.svg?branch=master)](https://travis-ci.org/shhj1998/rss-search-api)
 [![Coverage Status](https://coveralls.io/repos/github/shhj1998/rss-search-api/badge.svg?branch=master)](https://coveralls.io/github/shhj1998/rss-search-api?branch=master)
