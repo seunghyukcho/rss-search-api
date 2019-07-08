@@ -1,15 +1,47 @@
 package main
 
-import "github.com/gin-gonic/gin"
+import (
+	"database/sql"
+	"fmt"
+	"github.com/gin-gonic/gin"
+	_ "github.com/go-sql-driver/mysql"
+	"github.com/joho/godotenv"
+	"os"
+)
 
 func main() {
-	r := gin.Default()
+	err := godotenv.Load()
+	if err != nil {
+		panic(err)
+	}
 
-	r.GET("/ping", func(c *gin.Context) {
-		c.JSON(200, gin.H{
-			"message": "pong",
-		})
-	})
+	dbName := os.Getenv("DB_NAME")
+	dbHost := os.Getenv("DB_HOST")
+	dbId := os.Getenv("DB_ID")
+	dbPassword := os.Getenv("DB_PW")
 
-	r.Run()
+	dbInfo := fmt.Sprintf("%s:%s@tcp(%s)/%s", dbId, dbPassword, dbHost, dbName)
+	conn, err := sql.Open("mysql", dbInfo)
+
+	if err != nil {
+		panic(err)
+	}
+
+	dbInstance := &Env{db: conn}
+
+	mainRouter := gin.Default()
+	v1 := mainRouter.Group("/api/v1")
+
+	channelRouter := v1.Group("/channel")
+	itemRouter := v1.Group("/item")
+
+	{
+		channelRouter.GET("", dbInstance.getChannel)
+	}
+
+	{
+		itemRouter.GET("", dbInstance.getItem)
+	}
+
+	mainRouter.Run(":8080")
 }
