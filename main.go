@@ -38,6 +38,11 @@ func main() {
 
 	{
 		channelRouter.GET("", dbInstance.getChannel)
+		channelRouter.GET("/items", dbInstance.getChannelItems)
+		channelRouter.GET("/items/searchWord/:word", dbInstance.getChannelItems)
+		channelRouter.GET("/id/:id", dbInstance.getChannel)
+		channelRouter.GET("/id/:id/items", dbInstance.getChannelItems)
+		channelRouter.GET("/id/:id/items/searchWord/:word", dbInstance.getChannelItems)
 	}
 
 	{
