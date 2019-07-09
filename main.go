@@ -1,23 +1,50 @@
 package main
 
 import (
+	"database/sql"
 	"fmt"
-	"github.com/mmcdole/gofeed"
-	"github.com/shhj1998/rss-search-api/controller"
+	"github.com/gin-gonic/gin"
+	_ "github.com/go-sql-driver/mysql"
+	"github.com/joho/godotenv"
+	"os"
 )
 
 func main() {
-	controller.Sample(2)
-
-	fp := gofeed.NewParser()
-	feed, err := fp.ParseURL("https://media.daum.net/syndication/entertain.rss")
-
+	err := godotenv.Load()
 	if err != nil {
 		panic(err)
 	}
 
-	fmt.Println(feed.Title)
-	for _, item := range feed.Items {
-		fmt.Println(item.Description)
+	dbName := os.Getenv("DB_NAME")
+	dbHost := os.Getenv("DB_HOST")
+	dbId := os.Getenv("DB_ID")
+	dbPassword := os.Getenv("DB_PW")
+
+	dbInfo := fmt.Sprintf("%s:%s@tcp(%s)/%s", dbId, dbPassword, dbHost, dbName)
+	conn, err := sql.Open("mysql", dbInfo)
+
+	if err != nil {
+		panic(err)
 	}
+	defer conn.Close()
+
+	dbInstance := &Env{db: conn}
+
+	mainRouter := gin.Default()
+	v1 := mainRouter.Group("/api/v1")
+
+	channelRouter := v1.Group("/channel")
+	itemRouter := v1.Group("/item")
+
+	{
+		channelRouter.GET("", dbInstance.getChannel)
+		channelRouter.GET("/items", dbInstance.getChannelItems)
+		channelRouter.GET("/items/searchWord/:word", dbInstance.getChannelItems)
+	}
+
+	{
+		itemRouter.GET("", dbInstance.getItem)
+	}
+
+	mainRouter.Run(":8080")
 }
