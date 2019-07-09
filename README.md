@@ -12,7 +12,16 @@ This repository is a server code for fetching and searching Korea RSS data. Ther
 ## Data schema
 
 ## API
-
+### Channel API
+```$xslt
+GET /api/v1/channel
+GET /api/v1/channel/items
+GET /api/v1/channel/items/searchWord/:word
+```
+### Item API
+```$xslt
+GET /api/v1/item
+```
 ## Performance
 
 ## See also
