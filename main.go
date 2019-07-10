@@ -15,6 +15,7 @@ func main() {
 		panic(err)
 	}
 
+	port := os.Getenv("PORT")
 	dbName := os.Getenv("DB_NAME")
 	dbHost := os.Getenv("DB_HOST")
 	dbId := os.Getenv("DB_ID")
@@ -46,5 +47,5 @@ func main() {
 		itemRouter.GET("", dbInstance.getItem)
 	}
 
-	mainRouter.Run(":8080")
+	mainRouter.Run(":" + port)
 }
