@@ -1,11 +1,11 @@
 package main
 
 import (
-	"database/sql"
 	"fmt"
 	"github.com/gin-gonic/gin"
 	_ "github.com/go-sql-driver/mysql"
 	"github.com/joho/godotenv"
+	"github.com/shhj1998/rss-search-api/rsserver"
 	"os"
 )
 
@@ -15,21 +15,16 @@ func main() {
 		fmt.Println(err.Error())
 	}
 
-	port := os.Getenv("PORT")
-	dbName := os.Getenv("DB_NAME")
-	dbHost := os.Getenv("DB_HOST")
-	dbId := os.Getenv("DB_ID")
-	dbPassword := os.Getenv("DB_PW")
-
-	dbInfo := fmt.Sprintf("%s:%s@tcp(%s)/%s", dbId, dbPassword, dbHost, dbName)
-	conn, err := sql.Open("mysql", dbInfo)
-
+	port, name, address, id, password := os.Getenv("PORT"), os.Getenv("DB_NAME"), os.Getenv("DB_HOST"), os.Getenv("DB_ID"), os.Getenv("DB_PW")
+	rssDB := rsserver.DB{}
+	err = rssDB.Open(name, address, id, password)
 	if err != nil {
 		panic(err)
 	}
-	defer conn.Close()
+	defer rssDB.Close()
 
-	dbInstance := &Env{db: conn}
+	itemInstance := rsserver.ItemController{Table: &rssDB}
+	channelInstance := rsserver.ChannelController{Table: &rssDB}
 
 	mainRouter := gin.Default()
 	v1 := mainRouter.Group("/api/v1")
@@ -38,13 +33,13 @@ func main() {
 	itemRouter := v1.Group("/item")
 
 	{
-		channelRouter.GET("", dbInstance.getChannel)
-		channelRouter.GET("/items", dbInstance.getChannelItems)
-		channelRouter.GET("/items/searchWord/:word", dbInstance.getChannelItems)
+		channelRouter.GET("", channelInstance.GetChannel)
+		channelRouter.GET("/items", channelInstance.GetChannelItems)
+		channelRouter.GET("/items/searchWord/:word", channelInstance.GetChannelItems)
 	}
 
 	{
-		itemRouter.GET("", dbInstance.getItem)
+		itemRouter.GET("", itemInstance.GetItem)
 	}
 
 	mainRouter.Run(":" + port)

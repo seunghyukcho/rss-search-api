@@ -1,4 +1,4 @@
-package main
+package rsserver
 
 import (
 	"github.com/gin-gonic/gin"
@@ -6,13 +6,17 @@ import (
 	"net/http"
 )
 
-func (env *Env) getChannel(ctx *gin.Context) {
+type ChannelController struct {
+	Table *DB
+}
+
+func (controller *ChannelController) GetChannel(ctx *gin.Context) {
 	var err error
 	var Id int
 	var RSSLink string
 	var channels []gofeed.Feed
 
-	rows, err := env.db.Query(`SELECT * FROM Channel`)
+	rows, err := controller.Table.conn.Query(`SELECT * FROM Channel`)
 
 	if err != nil {
 		ctx.String(http.StatusBadRequest, err.Error())
@@ -36,14 +40,14 @@ func (env *Env) getChannel(ctx *gin.Context) {
 	}
 }
 
-func (env *Env) getChannelItems(ctx *gin.Context) {
+func (controller *ChannelController) GetChannelItems(ctx *gin.Context) {
 	var err error
 	var Id int
 	var channels []gofeed.Feed
 
 	searchWord := "%" + ctx.Param("word") + "%"
 
-	rows, err := env.db.Query(`SELECT channel_id, title, description, site_link FROM Channel`)
+	rows, err := controller.Table.conn.Query(`SELECT channel_id, title, description, site_link FROM Channel`)
 
 	if err != nil {
 		ctx.String(http.StatusBadRequest, err.Error())
@@ -51,7 +55,7 @@ func (env *Env) getChannelItems(ctx *gin.Context) {
 		var channel gofeed.Feed
 		for rows.Next() {
 			_ = rows.Scan(&Id, &channel.Title, &channel.Description, &channel.Link)
-			items, err := env.db.Query(`SELECT I.guid, I.title, I.link, I.description, I.pub_date FROM Channel JOIN Publish ON channel_id=channel JOIN Item I ON item=guid WHERE channel_id=? AND I.title LIKE ?`, Id, searchWord)
+			items, err := controller.Table.conn.Query(`SELECT I.guid, I.title, I.link, I.description, I.pub_date FROM Channel JOIN Publish ON channel_id=channel JOIN Item I ON item=guid WHERE channel_id=? AND I.title LIKE ?`, Id, searchWord)
 			if err != nil {
 				panic(err)
 			}

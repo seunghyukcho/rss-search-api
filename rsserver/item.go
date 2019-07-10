@@ -1,4 +1,4 @@
-package main
+package rsserver
 
 import (
 	"github.com/gin-gonic/gin"
@@ -6,11 +6,15 @@ import (
 	"net/http"
 )
 
-func (env *Env) getItem(ctx *gin.Context) {
+type ItemController struct {
+	Table *DB
+}
+
+func (controller *ItemController) GetItem(ctx *gin.Context) {
 	var err error
 	var items []gofeed.Item
 
-	rows, err := env.db.Query(`SELECT guid, title, link, description, pub_date FROM Item`)
+	rows, err := controller.Table.conn.Query(`SELECT guid, title, link, description, pub_date FROM Item`)
 
 	if err != nil {
 		ctx.String(http.StatusBadRequest, err.Error())
