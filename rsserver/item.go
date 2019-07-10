@@ -11,7 +11,7 @@ type ItemController struct {
 	Table *DB
 }
 
-func fetchItems(items *sql.Rows, ret *[]*gofeed.Item) (err error) {
+func FetchItems(items *sql.Rows, ret *[]*gofeed.Item) (err error) {
 	for items.Next() {
 		var item gofeed.Item
 		if err = items.Scan(&item.GUID, &item.Title, &item.Link, &item.Description, &item.Published); err != nil {
@@ -32,7 +32,7 @@ func (controller *ItemController) GetItems(ctx *gin.Context) {
 	if err != nil {
 		ctx.String(http.StatusBadRequest, err.Error())
 	} else {
-		if err := fetchItems(itemRows, &items); err != nil {
+		if err := FetchItems(itemRows, &items); err != nil {
 			ctx.String(http.StatusBadRequest, err.Error())
 		} else {
 			ctx.JSON(http.StatusOK, items)

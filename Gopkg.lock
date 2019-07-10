@@ -2,6 +2,14 @@
 
 
 [[projects]]
+  digest = "1:c84a587136cb69cecc11f3dbe9f9001444044c0dba74997b07f7e4c150b07cda"
+  name = "github.com/DATA-DOG/go-sqlmock"
+  packages = ["."]
+  pruneopts = "UT"
+  revision = "3f9954f6f6697845b082ca57995849ddf614f450"
+  version = "v1.3.3"
+
+[[projects]]
   digest = "1:573fa46f8d413d4bc3f7cc5e86b2c43cb21559f4fb0a19d9874d228e28fdc07c"
   name = "github.com/PuerkitoBio/goquery"
   packages = ["."]
@@ -201,6 +209,7 @@
   analyzer-name = "dep"
   analyzer-version = 1
   input-imports = [
+    "github.com/DATA-DOG/go-sqlmock",
     "github.com/gin-gonic/gin",
     "github.com/go-sql-driver/mysql",
     "github.com/joho/godotenv",

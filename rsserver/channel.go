@@ -17,7 +17,7 @@ type ChannelController struct {
 	Table *DB
 }
 
-func fetchChannels(channels *sql.Rows, ret *[]Channel) (err error) {
+func FetchChannels(channels *sql.Rows, ret *[]Channel) (err error) {
 	for channels.Next() {
 		var channel Channel
 
@@ -38,7 +38,7 @@ func (controller *ChannelController) GetChannels(ctx *gin.Context) {
 	if err != nil {
 		ctx.String(http.StatusBadRequest, err.Error())
 	} else {
-		if err := fetchChannels(channelRows, &channels); err != nil {
+		if err := FetchChannels(channelRows, &channels); err != nil {
 			ctx.JSON(http.StatusBadRequest, gin.H{"message": err.Error()})
 		} else {
 			ctx.JSON(http.StatusOK, channels)
@@ -56,7 +56,7 @@ func (controller *ChannelController) GetChannelItems(ctx *gin.Context) {
 	if err != nil {
 		ctx.JSON(http.StatusBadRequest, gin.H{"message": err.Error()})
 	} else {
-		if err = fetchChannels(channelRows, &channels); err != nil {
+		if err = FetchChannels(channelRows, &channels); err != nil {
 			ctx.JSON(http.StatusBadRequest, gin.H{"message": err.Error()})
 		} else {
 			for idx, channel := range channels {
@@ -64,7 +64,7 @@ func (controller *ChannelController) GetChannelItems(ctx *gin.Context) {
 
 				if err != nil {
 					ctx.JSON(http.StatusBadRequest, gin.H{"message": err.Error()})
-				} else if err = fetchItems(itemRows, &channels[idx].Items); err != nil {
+				} else if err = FetchItems(itemRows, &channels[idx].Items); err != nil {
 					ctx.JSON(http.StatusBadRequest, gin.H{"message": err.Error()})
 				} else {
 					continue
