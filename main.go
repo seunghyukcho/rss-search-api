@@ -33,13 +33,13 @@ func main() {
 	itemRouter := v1.Group("/item")
 
 	{
-		channelRouter.GET("", channelInstance.GetChannel)
+		channelRouter.GET("", channelInstance.GetChannels)
 		channelRouter.GET("/items", channelInstance.GetChannelItems)
 		channelRouter.GET("/items/searchWord/:word", channelInstance.GetChannelItems)
 	}
 
 	{
-		itemRouter.GET("", itemInstance.GetItem)
+		itemRouter.GET("", itemInstance.GetItems)
 	}
 
 	mainRouter.Run(":" + port)

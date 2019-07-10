@@ -1,38 +1,44 @@
 package rsserver
 
 import (
+	"database/sql"
 	"github.com/gin-gonic/gin"
 	"github.com/mmcdole/gofeed"
 	"net/http"
 )
 
+type Channel struct {
+	Id      int    `json:"id,omitempty"`
+	RSSLink string `json:"rss_link,omitempty"`
+	gofeed.Feed
+}
+
 type ChannelController struct {
 	Table *DB
 }
 
-func (controller *ChannelController) GetChannel(ctx *gin.Context) {
-	var err error
-	var Id int
-	var RSSLink string
-	var channels []gofeed.Feed
+func fetchChannels(channels *sql.Rows, ret *[]Channel) (err error) {
+	for channels.Next() {
+		var channel Channel
 
-	rows, err := controller.Table.conn.Query(`SELECT * FROM Channel`)
+		if err = channels.Scan(&channel.Id, &channel.Title, &channel.Description, &channel.Link, &channel.RSSLink); err != nil {
+			return err
+		}
+
+		*ret = append(*ret, channel)
+	}
+
+	return nil
+}
+
+func (controller *ChannelController) GetChannels(ctx *gin.Context) {
+	var channels []Channel
+	channelRows, err := controller.Table.conn.Query(`SELECT channel_id, title, description, site_link, rss_link FROM Channel`)
 
 	if err != nil {
 		ctx.String(http.StatusBadRequest, err.Error())
 	} else {
-		var channel gofeed.Feed
-		for rows.Next() {
-			err = rows.Scan(&Id, &channel.Title, &channel.Description, &channel.Link, &RSSLink)
-
-			if err != nil {
-				break
-			}
-
-			channels = append(channels, channel)
-		}
-
-		if err != nil {
+		if err := fetchChannels(channelRows, &channels); err != nil {
 			ctx.JSON(http.StatusBadRequest, gin.H{"message": err.Error()})
 		} else {
 			ctx.JSON(http.StatusOK, channels)
@@ -42,39 +48,31 @@ func (controller *ChannelController) GetChannel(ctx *gin.Context) {
 
 func (controller *ChannelController) GetChannelItems(ctx *gin.Context) {
 	var err error
-	var Id int
-	var channels []gofeed.Feed
+	var channels []Channel
 
 	searchWord := "%" + ctx.Param("word") + "%"
-
-	rows, err := controller.Table.conn.Query(`SELECT channel_id, title, description, site_link FROM Channel`)
+	channelRows, err := controller.Table.conn.Query(`SELECT channel_id, title, description, site_link, rss_link FROM Channel`)
 
 	if err != nil {
-		ctx.String(http.StatusBadRequest, err.Error())
+		ctx.JSON(http.StatusBadRequest, gin.H{"message": err.Error()})
 	} else {
-		for rows.Next() {
-			var channel gofeed.Feed
-			_ = rows.Scan(&Id, &channel.Title, &channel.Description, &channel.Link)
-			items, err := controller.Table.conn.Query(`SELECT I.guid, I.title, I.link, I.description, I.pub_date FROM Channel JOIN Publish ON channel_id=channel JOIN Item I ON item=guid WHERE channel_id=? AND I.title LIKE ?`, Id, searchWord)
-			if err != nil {
-				panic(err)
+		if err = fetchChannels(channelRows, &channels); err != nil {
+			ctx.JSON(http.StatusBadRequest, gin.H{"message": err.Error()})
+		} else {
+			for idx, channel := range channels {
+				itemRows, err := controller.Table.conn.Query(`SELECT I.guid, I.title, I.link, I.description, I.pub_date FROM Channel JOIN Publish ON channel_id=channel JOIN Item I ON item=guid WHERE channel_id=? AND I.title LIKE ?`, channel.Id, searchWord)
+
+				if err != nil {
+					ctx.JSON(http.StatusBadRequest, gin.H{"message": err.Error()})
+				} else if err = fetchItems(itemRows, &channels[idx].Items); err != nil {
+					ctx.JSON(http.StatusBadRequest, gin.H{"message": err.Error()})
+				} else {
+					continue
+				}
+				return
 			}
 
-			for items.Next() {
-				var item gofeed.Item
-				_ = items.Scan(&item.GUID, &item.Title, &item.Link, &item.Description, &item.Published)
-
-				channel.Items = append(channel.Items, &item)
-			}
-
-			if len(channel.Items) > 0 {
-				channels = append(channels, channel)
-			}
+			ctx.JSON(http.StatusOK, channels)
 		}
-
-		if len(channels) == 0 {
-			ctx.JSON(http.StatusNotFound, gin.H{"message": "no channel with items"})
-		}
-		ctx.JSON(http.StatusOK, channels)
 	}
 }
