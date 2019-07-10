@@ -52,8 +52,8 @@ func (controller *ChannelController) GetChannelItems(ctx *gin.Context) {
 	if err != nil {
 		ctx.String(http.StatusBadRequest, err.Error())
 	} else {
-		var channel gofeed.Feed
 		for rows.Next() {
+			var channel gofeed.Feed
 			_ = rows.Scan(&Id, &channel.Title, &channel.Description, &channel.Link)
 			items, err := controller.Table.conn.Query(`SELECT I.guid, I.title, I.link, I.description, I.pub_date FROM Channel JOIN Publish ON channel_id=channel JOIN Item I ON item=guid WHERE channel_id=? AND I.title LIKE ?`, Id, searchWord)
 			if err != nil {
