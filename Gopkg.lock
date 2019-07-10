@@ -205,7 +205,6 @@
     "github.com/go-sql-driver/mysql",
     "github.com/joho/godotenv",
     "github.com/mmcdole/gofeed",
-    "github.com/mmcdole/gofeed/rss",
   ]
   solver-name = "gps-cdcl"
   solver-version = 1
