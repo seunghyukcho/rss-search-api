@@ -40,7 +40,7 @@ func (controller *Controller) GetChannelItems(ctx *gin.Context) {
 			ctx.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
 		} else {
 			for idx, channel := range channels {
-				itemRows, err := controller.Table.Connection.Query(`SELECT I.guid, I.title, I.link, I.description, I.pub_date FROM Channel JOIN Publish ON channel_id=channel JOIN Item I ON item=guid WHERE channel_id=? AND I.title LIKE ?`, channel.Id, searchWord)
+				itemRows, err := controller.Table.Connection.Query(`SELECT I.guid, I.title, I.link, I.description, I.pub_date, I.creator, e.url, e.length, e.type FROM Channel c JOIN Publish p ON c.channel_id=p.channel JOIN Item I ON p.item=I.guid LEFT JOIN Enclosure e ON I.guid=e.item WHERE channel_id=? AND I.title LIKE ?`, channel.Id, searchWord)
 
 				if err != nil {
 					ctx.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
