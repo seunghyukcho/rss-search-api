@@ -6,6 +6,8 @@ import (
 	_ "github.com/go-sql-driver/mysql"
 	"github.com/joho/godotenv"
 	"github.com/shhj1998/rss-search-api/rsserver"
+	"github.com/shhj1998/rss-search-api/rsserver/channel"
+	"github.com/shhj1998/rss-search-api/rsserver/item"
 	"os"
 )
 
@@ -23,8 +25,8 @@ func main() {
 	}
 	defer rssDB.Close()
 
-	itemInstance := rsserver.ItemController{Table: &rssDB}
-	channelInstance := rsserver.ChannelController{Table: &rssDB}
+	itemInstance := item.Controller{Table: &rssDB}
+	channelInstance := channel.Controller{Table: &rssDB}
 
 	mainRouter := gin.Default()
 	v1 := mainRouter.Group("/api/v1")
