@@ -12,17 +12,20 @@ import (
 )
 
 func main() {
-	err := godotenv.Load()
-	if err != nil {
+	if err := godotenv.Load(); err != nil {
 		fmt.Println(err.Error())
 	}
 
 	port, name, address, id, password := os.Getenv("PORT"), os.Getenv("DB_NAME"), os.Getenv("DB_HOST"), os.Getenv("DB_ID"), os.Getenv("DB_PW")
 	rssDB := rsserver.DB{}
-	err = rssDB.Open(name, address, id, password)
-	if err != nil {
+	if err := rssDB.Open(name, address, id, password); err != nil {
 		panic(err)
 	}
+
+	if err := rssDB.Update(); err != nil {
+		panic(err)
+	}
+
 	defer rssDB.Close()
 
 	itemInstance := item.Controller{Table: &rssDB}
