@@ -54,18 +54,18 @@ func (controller *ChannelController) GetChannelItems(ctx *gin.Context) {
 	channelRows, err := controller.Table.conn.Query(`SELECT channel_id, title, description, site_link, rss_link FROM Channel`)
 
 	if err != nil {
-		ctx.JSON(http.StatusBadRequest, gin.H{"message": err.Error()})
+		ctx.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
 	} else {
 		if err = FetchChannels(channelRows, &channels); err != nil {
-			ctx.JSON(http.StatusBadRequest, gin.H{"message": err.Error()})
+			ctx.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
 		} else {
 			for idx, channel := range channels {
 				itemRows, err := controller.Table.conn.Query(`SELECT I.guid, I.title, I.link, I.description, I.pub_date FROM Channel JOIN Publish ON channel_id=channel JOIN Item I ON item=guid WHERE channel_id=? AND I.title LIKE ?`, channel.Id, searchWord)
 
 				if err != nil {
-					ctx.JSON(http.StatusBadRequest, gin.H{"message": err.Error()})
+					ctx.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
 				} else if err = FetchItems(itemRows, &channels[idx].Items); err != nil {
-					ctx.JSON(http.StatusBadRequest, gin.H{"message": err.Error()})
+					ctx.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
 				} else {
 					continue
 				}

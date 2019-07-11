@@ -30,10 +30,10 @@ func (controller *ItemController) GetItems(ctx *gin.Context) {
 	itemRows, err := controller.Table.conn.Query(`SELECT guid, title, link, description, pub_date FROM Item`)
 
 	if err != nil {
-		ctx.String(http.StatusBadRequest, err.Error())
+		ctx.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
 	} else {
 		if err := FetchItems(itemRows, &items); err != nil {
-			ctx.String(http.StatusBadRequest, err.Error())
+			ctx.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
 		} else {
 			ctx.JSON(http.StatusOK, items)
 		}
