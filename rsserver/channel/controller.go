@@ -49,7 +49,7 @@ func (controller *Controller) GetChannelItems(ctx *gin.Context) {
 			return
 		}
 	}
-
+  
 	channelRows, err := controller.Table.Connection.Query(`SELECT channel_id, title, description, site_link, rss_link FROM Channel`)
 
 	if err != nil {

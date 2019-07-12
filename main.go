@@ -44,7 +44,7 @@ func main() {
 			}
 		}
 	}(&rssDB)
-
+  
 	itemInstance := item.Controller{Table: &rssDB}
 	channelInstance := channel.Controller{Table: &rssDB}
 
