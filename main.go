@@ -56,8 +56,10 @@ func main() {
 
 	{
 		channelRouter.GET("", channelInstance.GetChannels)
-		channelRouter.GET("/items", channelInstance.GetChannelItems)
+		channelRouter.GET("/items/", channelInstance.GetChannelItems)
+		channelRouter.GET("/items/count/:count", channelInstance.GetChannelItems)
 		channelRouter.GET("/items/searchWord/:word", channelInstance.GetChannelItems)
+		channelRouter.GET("/items/searchWord/:word/count/:count", channelInstance.GetChannelItems)
 		channelRouter.POST("", channelInstance.CreateChannel)
 	}
 

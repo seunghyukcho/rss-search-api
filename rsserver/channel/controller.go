@@ -7,6 +7,7 @@ import (
 	"github.com/shhj1998/rss-search-api/rsserver"
 	"github.com/shhj1998/rss-search-api/rsserver/item"
 	"net/http"
+	"strconv"
 )
 
 type Controller struct {
@@ -35,8 +36,20 @@ func (controller *Controller) GetChannels(ctx *gin.Context) {
 func (controller *Controller) GetChannelItems(ctx *gin.Context) {
 	var err error
 	var channels []Channel
+	var count int
 
 	searchWord := "%" + ctx.Param("word") + "%"
+	countParam := ctx.Param("count")
+	if countParam == "" {
+		count = 20
+	} else {
+		count, err = strconv.Atoi(ctx.Param("count"))
+		if err != nil {
+			ctx.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+			return
+		}
+	}
+
 	channelRows, err := controller.Table.Connection.Query(`SELECT channel_id, title, description, site_link, rss_link FROM Channel`)
 
 	if err != nil {
@@ -46,7 +59,9 @@ func (controller *Controller) GetChannelItems(ctx *gin.Context) {
 			ctx.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
 		} else {
 			for idx, channel := range channels {
-				itemRows, err := controller.Table.Connection.Query(`SELECT I.guid, I.title, I.link, I.description, I.pub_date, I.creator, e.url, e.length, e.type FROM Channel c JOIN Publish p ON c.channel_id=p.channel JOIN Item I ON p.item=I.guid LEFT JOIN Enclosure e ON I.guid=e.item WHERE channel_id=? AND I.title LIKE ?`, channel.Id, searchWord)
+				itemRows, err := controller.Table.Connection.Query(`SELECT I.guid, I.title, I.link, I.description, I.pub_date, I.creator, e.url, e.length, e.type 
+																			FROM Channel c JOIN Publish p ON c.channel_id=p.channel JOIN Item I ON p.item=I.guid LEFT JOIN Enclosure e ON I.guid=e.item 
+																			WHERE channel_id=? AND I.title LIKE ? ORDER BY I.pub_date DESC LIMIT 0,?`, channel.Id, searchWord, count)
 
 				if err != nil {
 					ctx.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
