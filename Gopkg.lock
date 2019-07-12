@@ -71,6 +71,14 @@
   version = "v1.3.1"
 
 [[projects]]
+  digest = "1:ebdeb808fe6861df1eaa262006a879bdbed826dd51c343bd5e681045e194997c"
+  name = "github.com/google/logger"
+  packages = ["."]
+  pruneopts = "UT"
+  revision = "7047ffcb7339f3f59be32de74a92217cb17cb40c"
+  version = "v1.0.1"
+
+[[projects]]
   digest = "1:ecd9aa82687cf31d1585d4ac61d0ba180e42e8a6182b85bd785fcca8dfeefc1b"
   name = "github.com/joho/godotenv"
   packages = ["."]
@@ -171,9 +179,14 @@
 
 [[projects]]
   branch = "master"
-  digest = "1:730ba27cd66db3b98ec8f51a6f20d45ec277d490cca36b1f54e31d3fcaf4840e"
+  digest = "1:e82bbb54db76fa7d5caf2271ddd2447e196eecd5b694ff6eeb7f3ed05a113ab4"
   name = "golang.org/x/sys"
-  packages = ["unix"]
+  packages = [
+    "unix",
+    "windows",
+    "windows/registry",
+    "windows/svc/eventlog",
+  ]
   pruneopts = "UT"
   revision = "04f50cda93cbb67f2afa353c52f342100e80e625"
 
@@ -236,6 +249,7 @@
     "github.com/DATA-DOG/go-sqlmock",
     "github.com/gin-gonic/gin",
     "github.com/go-sql-driver/mysql",
+    "github.com/google/logger",
     "github.com/joho/godotenv",
     "github.com/mmcdole/gofeed",
     "github.com/stretchr/testify/assert",
