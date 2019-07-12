@@ -1,7 +1,9 @@
 package channel
 
 import (
+	"fmt"
 	"github.com/gin-gonic/gin"
+	"github.com/mmcdole/gofeed"
 	"github.com/shhj1998/rss-search-api/rsserver"
 	"github.com/shhj1998/rss-search-api/rsserver/item"
 	"net/http"
@@ -9,6 +11,10 @@ import (
 
 type Controller struct {
 	Table *rsserver.DB
+}
+
+type createParams struct {
+	Link string `form:"rss" json:"rss" xml:"rss" binding:"required"`
 }
 
 func (controller *Controller) GetChannels(ctx *gin.Context) {
@@ -54,5 +60,24 @@ func (controller *Controller) GetChannelItems(ctx *gin.Context) {
 
 			ctx.JSON(http.StatusOK, channels)
 		}
+	}
+}
+
+func (controller *Controller) CreateChannel(ctx *gin.Context) {
+	var rss createParams
+	if err := ctx.ShouldBind(&rss); err == nil {
+		fmt.Println(rss.Link)
+		fp := gofeed.NewParser()
+		if _, err := fp.ParseURL(rss.Link); err == nil {
+			if _, err = controller.Table.Connection.Exec(`INSERT INTO Channel(rss_link) VALUE(?)`, rss.Link); err == nil {
+				ctx.JSON(http.StatusOK, gin.H{"message": "created a new channel!"})
+			} else {
+				ctx.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+			}
+		} else {
+			ctx.JSON(http.StatusBadRequest, gin.H{"error": "invalid rss link..."})
+		}
+	} else {
+		ctx.JSON(http.StatusBadRequest, gin.H{"error": "Request body doesn't match the api... Please read our api docs"})
 	}
 }

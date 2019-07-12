@@ -8,12 +8,14 @@ import (
 )
 
 type DB struct {
+	dbName     string
 	Connection *sql.DB
 }
 
 func (db *DB) Open(name, address, id, password string) (err error) {
 	dbInfo := fmt.Sprintf("%s:%s@tcp(%s)/%s", id, password, address, name)
 	db.Connection, err = sql.Open("mysql", dbInfo)
+	db.dbName = name
 
 	return err
 }
