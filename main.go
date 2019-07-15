@@ -6,6 +6,7 @@ import (
 	_ "github.com/go-sql-driver/mysql"
 	"github.com/google/logger"
 	"github.com/joho/godotenv"
+	"github.com/shhj1998/rss-search-api/rssapi"
 	"github.com/shhj1998/rss-search-api/rsserver"
 	"github.com/shhj1998/rss-search-api/rsserver/channel"
 	"github.com/shhj1998/rss-search-api/rsserver/item"
@@ -44,8 +45,8 @@ func main() {
 			}
 		}
 	}(&rssDB)
-  
-	itemInstance := item.Controller{Table: &rssDB}
+
+	itemInstance := rssapi.Item{Controller: &item.Controller{&rssDB}}
 	channelInstance := channel.Controller{Table: &rssDB}
 
 	mainRouter := gin.Default()
@@ -58,8 +59,6 @@ func main() {
 		channelRouter.GET("", channelInstance.GetChannels)
 		channelRouter.GET("/items/", channelInstance.GetChannelItems)
 		channelRouter.GET("/items/count/:count", channelInstance.GetChannelItems)
-		channelRouter.GET("/items/searchWord/:word", channelInstance.GetChannelItems)
-		channelRouter.GET("/items/searchWord/:word/count/:count", channelInstance.GetChannelItems)
 		channelRouter.POST("", channelInstance.CreateChannel)
 	}
 
