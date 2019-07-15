@@ -15,10 +15,10 @@ func (controller *Controller) GetItems(items *[]*gofeed.Item) (err error) {
 	if err == nil {
 		if err := Fetch(itemRows, items); err != nil {
 			return err
-		} else {
-			return nil
 		}
 	} else {
 		return err
 	}
+
+	return nil
 }

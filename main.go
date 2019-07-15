@@ -46,8 +46,8 @@ func main() {
 		}
 	}(&rssDB)
 
-	itemInstance := rssapi.Item{Controller: &item.Controller{&rssDB}}
-	channelInstance := channel.Controller{Table: &rssDB}
+	itemInstance := rssapi.Item{Controller: &item.Controller{Table: &rssDB}}
+	channelInstance := rssapi.Channel{Controller: &channel.Controller{Table: &rssDB}}
 
 	mainRouter := gin.Default()
 	v1 := mainRouter.Group("/api/v1")
@@ -57,8 +57,8 @@ func main() {
 
 	{
 		channelRouter.GET("", channelInstance.GetChannels)
-		channelRouter.GET("/items/", channelInstance.GetChannelItems)
-		channelRouter.GET("/items/count/:count", channelInstance.GetChannelItems)
+		channelRouter.GET("/items/", channelInstance.GetChannelsWithItems)
+		channelRouter.GET("/items/count/:count", channelInstance.GetChannelsWithItems)
 		channelRouter.POST("", channelInstance.CreateChannel)
 	}
 

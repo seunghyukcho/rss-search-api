@@ -14,8 +14,7 @@ type Item struct {
 func (I *Item) GetItems(ctx *gin.Context) {
 	var items []*gofeed.Item
 
-	err := I.Controller.GetItems(&items)
-	if err != nil {
+	if err := I.Controller.GetItems(&items); err != nil {
 		ctx.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
 	} else {
 		ctx.JSON(http.StatusOK, items)
