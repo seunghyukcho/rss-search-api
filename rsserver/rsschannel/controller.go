@@ -5,7 +5,7 @@ import (
 	"github.com/shhj1998/rss-search-api/rsserver/rssitem"
 )
 
-func (table *Table) GetChannelLinks(channels *[]*Schema) (err error) {
+func (table *Table) GetLinks(channels *[]*Schema) (err error) {
 	channelRows, err := table.Connection.Query(`SELECT channel_id, rss_link FROM Channel`)
 
 	if err == nil {
@@ -24,7 +24,7 @@ func (table *Table) GetChannelLinks(channels *[]*Schema) (err error) {
 	return nil
 }
 
-func (table *Table) GetChannels(channels *[]*Schema) (err error) {
+func (table *Table) Get(channels *[]*Schema) (err error) {
 	channelRows, err := table.Connection.Query(`SELECT title, description, site_link FROM Channel`)
 
 	if err == nil {
@@ -56,7 +56,7 @@ func (table *Table) getChannelWithItems(channel *Schema, count int) (err error) 
 	return nil
 }
 
-func (table *Table) GetChannelsWithItems(channels *[]*Schema, count int) (err error) {
+func (table *Table) GetWithItems(channels *[]*Schema, count int) (err error) {
 	channelRows, err := table.Connection.Query(`SELECT channel_id, title, description, site_link, rss_link FROM Channel`)
 
 	if err != nil {
@@ -76,7 +76,7 @@ func (table *Table) GetChannelsWithItems(channels *[]*Schema, count int) (err er
 	return nil
 }
 
-func (table *Table) CreateChannel(rssLink string) (err error) {
+func (table *Table) Create(rssLink string) (err error) {
 	fp := gofeed.NewParser()
 	if _, err = fp.ParseURL(rssLink); err == nil {
 		if _, err = table.Connection.Exec(`INSERT INTO Channel(rss_link) VALUE(?)`, rssLink); err != nil {

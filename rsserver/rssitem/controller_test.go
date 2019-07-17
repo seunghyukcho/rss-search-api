@@ -23,7 +23,7 @@ func TestController_GetItems(t *testing.T) {
 
 	mock.ExpectQuery("SELECT").WillReturnRows(mockRows)
 	var controller = rssitem.Table{Connection: conn}
-	err := controller.GetItems(&actualItems)
+	err := controller.Get(&actualItems)
 
 	assert.Nil(t, err)
 	assert.Equal(t, expectedItems, actualItems)

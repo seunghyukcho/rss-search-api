@@ -13,7 +13,7 @@ type createParams struct {
 
 func (server *Server) GetChannels(ctx *gin.Context) {
 	var channels []*rsschannel.Schema
-	if err := server.DB.ChannelTable.GetChannels(&channels); err != nil {
+	if err := server.DB.ChannelTable.Get(&channels); err != nil {
 		ctx.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
 	} else {
 		ctx.JSON(http.StatusOK, channels)
@@ -36,7 +36,7 @@ func (server *Server) GetChannelsWithItems(ctx *gin.Context) {
 		}
 	}
 
-	if err := server.DB.ChannelTable.GetChannelsWithItems(&channels, count); err != nil {
+	if err := server.DB.ChannelTable.GetWithItems(&channels, count); err != nil {
 		ctx.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
 	} else {
 		ctx.JSON(http.StatusOK, channels)
@@ -46,7 +46,7 @@ func (server *Server) GetChannelsWithItems(ctx *gin.Context) {
 func (server *Server) CreateChannel(ctx *gin.Context) {
 	var rss createParams
 	if err := ctx.ShouldBind(&rss); err == nil {
-		if err := server.DB.ChannelTable.CreateChannel(rss.Link); err != nil {
+		if err := server.DB.ChannelTable.Create(rss.Link); err != nil {
 			ctx.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
 		} else {
 			ctx.JSON(http.StatusBadRequest, gin.H{"success": "successfully created a new Channel"})
