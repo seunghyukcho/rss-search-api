@@ -2,30 +2,26 @@ package rssapi
 
 import (
 	"github.com/gin-gonic/gin"
-	"github.com/shhj1998/rss-search-api/rsserver/channel"
+	"github.com/shhj1998/rss-search-api/rsserver/rsschannel"
 	"net/http"
 	"strconv"
 )
-
-type Channel struct {
-	Controller *channel.Controller
-}
 
 type createParams struct {
 	Link string `form:"rss" json:"rss" xml:"rss" binding:"required"`
 }
 
-func (C *Channel) GetChannels(ctx *gin.Context) {
-	var channels []channel.Channel
-	if err := C.Controller.GetChannels(&channels); err != nil {
+func (server *Server) GetChannels(ctx *gin.Context) {
+	var channels []*rsschannel.Schema
+	if err := server.DB.ChannelTable.GetChannels(&channels); err != nil {
 		ctx.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
 	} else {
 		ctx.JSON(http.StatusOK, channels)
 	}
 }
 
-func (C *Channel) GetChannelsWithItems(ctx *gin.Context) {
-	var channels []channel.Channel
+func (server *Server) GetChannelsWithItems(ctx *gin.Context) {
+	var channels []*rsschannel.Schema
 	var err error
 	var count int
 
@@ -40,17 +36,17 @@ func (C *Channel) GetChannelsWithItems(ctx *gin.Context) {
 		}
 	}
 
-	if err := C.Controller.GetChannelsWithItems(&channels, count); err != nil {
+	if err := server.DB.ChannelTable.GetChannelsWithItems(&channels, count); err != nil {
 		ctx.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
 	} else {
 		ctx.JSON(http.StatusOK, channels)
 	}
 }
 
-func (C *Channel) CreateChannel(ctx *gin.Context) {
+func (server *Server) CreateChannel(ctx *gin.Context) {
 	var rss createParams
 	if err := ctx.ShouldBind(&rss); err == nil {
-		if err := C.Controller.CreateChannel(rss.Link); err != nil {
+		if err := server.DB.ChannelTable.CreateChannel(rss.Link); err != nil {
 			ctx.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
 		} else {
 			ctx.JSON(http.StatusBadRequest, gin.H{"success": "successfully created a new Channel"})

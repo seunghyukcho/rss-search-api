@@ -4,30 +4,38 @@ import (
 	"database/sql"
 	"fmt"
 	"github.com/mmcdole/gofeed"
+	"github.com/shhj1998/rss-search-api/rsserver/rsschannel"
+	"github.com/shhj1998/rss-search-api/rsserver/rssitem"
 	"time"
 )
 
 type DB struct {
-	dbName     string
-	Connection *sql.DB
+	connection   *sql.DB
+	Name         string
+	ItemTable    *rssitem.Table
+	ChannelTable *rsschannel.Table
 }
 
 func (db *DB) Open(name, address, id, password string) (err error) {
 	dbInfo := fmt.Sprintf("%s:%s@tcp(%s)/%s", id, password, address, name)
-	db.Connection, err = sql.Open("mysql", dbInfo)
-	db.dbName = name
+	conn, err := sql.Open("mysql", dbInfo)
+
+	db.connection = conn
+	db.Name = name
+	db.ItemTable = &rssitem.Table{conn}
+	db.ChannelTable = &rsschannel.Table{conn}
 
 	return err
 }
 
 func (db *DB) Close() (err error) {
-	err = db.Connection.Close()
+	err = db.connection.Close()
 	return err
 }
 
 func (db *DB) Update() (err error) {
 	parser := gofeed.NewParser()
-	conn := db.Connection
+	conn := db.connection
 
 	updateChannel, _ := conn.Prepare(`UPDATE Channel SET title=?, description=?, site_link=? WHERE channel_id=?`)
 	insertItem, _ := conn.Prepare(`INSERT INTO Item (guid, title, description, link, pub_date, creator) VALUES (?, ?, ?, ?, ?, ?)
@@ -35,7 +43,7 @@ func (db *DB) Update() (err error) {
 	insertEnclosure, _ := conn.Prepare(`INSERT IGNORE INTO Enclosure (item, url, length, type) VALUES (?, ?, ?, ?)`)
 	insertPublish, _ := conn.Prepare(`INSERT IGNORE INTO Publish (item, channel) VALUES (?, ?)`)
 
-	if channelRows, err := db.Connection.Query(`SELECT channel_id, rss_link FROM Channel`); err == nil {
+	if channelRows, err := db.connection.Query(`SELECT channel_id, rss_link FROM Channel`); err == nil {
 		for channelRows.Next() {
 			var channelID int
 			var rssLink string

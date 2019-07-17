@@ -8,8 +8,6 @@ import (
 	"github.com/joho/godotenv"
 	"github.com/shhj1998/rss-search-api/rssapi"
 	"github.com/shhj1998/rss-search-api/rsserver"
-	"github.com/shhj1998/rss-search-api/rsserver/channel"
-	"github.com/shhj1998/rss-search-api/rsserver/item"
 	"io/ioutil"
 	"log"
 	"os"
@@ -46,8 +44,7 @@ func main() {
 		}
 	}(&rssDB)
 
-	itemInstance := rssapi.Item{Controller: &item.Controller{Table: &rssDB}}
-	channelInstance := rssapi.Channel{Controller: &channel.Controller{Table: &rssDB}}
+	apiServer := rssapi.Server{DB: &rssDB}
 
 	mainRouter := gin.Default()
 	v1 := mainRouter.Group("/api/v1")
@@ -56,14 +53,14 @@ func main() {
 	itemRouter := v1.Group("/item")
 
 	{
-		channelRouter.GET("", channelInstance.GetChannels)
-		channelRouter.GET("/items/", channelInstance.GetChannelsWithItems)
-		channelRouter.GET("/items/count/:count", channelInstance.GetChannelsWithItems)
-		channelRouter.POST("", channelInstance.CreateChannel)
+		channelRouter.GET("", apiServer.GetChannels)
+		channelRouter.GET("/items/", apiServer.GetChannelsWithItems)
+		channelRouter.GET("/items/count/:count", apiServer.GetChannelsWithItems)
+		channelRouter.POST("", apiServer.CreateChannel)
 	}
 
 	{
-		itemRouter.GET("", itemInstance.GetItems)
+		itemRouter.GET("", apiServer.GetItems)
 	}
 
 	mainRouter.Run(":" + port)
