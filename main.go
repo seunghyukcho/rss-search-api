@@ -23,11 +23,20 @@ func main() {
 
 	port, name, address, id, password := os.Getenv("PORT"), os.Getenv("DB_NAME"), os.Getenv("DB_HOST"), os.Getenv("DB_ID"), os.Getenv("DB_PW")
 	rssDB := rsserver.DB{}
+
 	if err := rssDB.Open(name, address, id, password); err != nil {
 		panic(err)
 	}
 
 	defer rssDB.Close()
+
+	if err := rssDB.Create(); err != nil {
+		panic(err)
+	}
+
+	if err := rssDB.Update(); err != nil {
+		panic(err)
+	}
 
 	go func(db *rsserver.DB) {
 		ticker := time.NewTicker(1 * time.Hour)

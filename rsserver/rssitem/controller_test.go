@@ -21,7 +21,9 @@ func TestController_GetItems(t *testing.T) {
 		AddRow("media:news:20190708154212517", "I think it is a good day", "link01", "so do I!", "2019-07-08 06:42:12", nil, nil, nil, nil).
 		AddRow("media:news:20190708154523636", "It's raining outside...", "link02", "I'm getting tired...", "2019-07-09 07:42:12", nil, nil, nil, nil)
 
+	mock.ExpectBegin()
 	mock.ExpectQuery("SELECT").WillReturnRows(mockRows)
+	mock.ExpectCommit()
 	var controller = rssitem.Table{Connection: conn}
 	err := controller.Get(&actualItems)
 

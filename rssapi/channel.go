@@ -49,7 +49,7 @@ func (server *Server) CreateChannel(ctx *gin.Context) {
 		if err := server.DB.ChannelTable.Create(rss.Link); err != nil {
 			ctx.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
 		} else {
-			ctx.JSON(http.StatusBadRequest, gin.H{"success": "successfully created a new Channel"})
+			ctx.JSON(http.StatusOK, gin.H{"success": "successfully created a new Channel"})
 		}
 	} else {
 		ctx.JSON(http.StatusBadRequest, gin.H{"error": "Request body doesn't match the api... Please read our api docs"})
