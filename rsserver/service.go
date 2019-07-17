@@ -11,14 +11,20 @@ import (
 
 func (db *DB) Open(name, address, id, password string) (err error) {
 	dbInfo := fmt.Sprintf("%s:%s@tcp(%s)/%s", id, password, address, name)
-	conn, err := sql.Open("mysql", dbInfo)
+	if conn, err := sql.Open("mysql", dbInfo); err != nil {
+		return err
+	} else {
+		db.connection = conn
+		db.Name = name
+		db.ItemTable = &rssitem.Table{conn}
+		db.ChannelTable = &rsschannel.Table{conn}
 
-	db.connection = conn
-	db.Name = name
-	db.ItemTable = &rssitem.Table{conn}
-	db.ChannelTable = &rsschannel.Table{conn}
+		return nil
+	}
+}
 
-	return err
+func (db *DB) Create() {
+
 }
 
 func (db *DB) Close() (err error) {
