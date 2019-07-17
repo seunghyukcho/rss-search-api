@@ -1,15 +1,15 @@
-package item
+package rssitem
 
 import (
 	"database/sql"
 	"github.com/mmcdole/gofeed"
 )
 
-func Fetch(items *sql.Rows, ret *[]*gofeed.Item) (err error) {
-	itemMap := make(map[string]*gofeed.Item)
+func Fetch(items *sql.Rows, ret *[]*Schema) (err error) {
+	itemMap := make(map[string]*Schema)
 
 	for items.Next() {
-		var item gofeed.Item
+		var item Schema
 		var author, url, length, mediaType sql.NullString
 
 		if err = items.Scan(&item.GUID, &item.Title, &item.Link, &item.Description, &item.Published, &author, &url, &length, &mediaType); err != nil {

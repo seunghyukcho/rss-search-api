@@ -1,18 +1,18 @@
-package item_test
+package rssitem_test
 
 import (
 	"github.com/DATA-DOG/go-sqlmock"
 	"github.com/mmcdole/gofeed"
-	"github.com/shhj1998/rss-search-api/rsserver/item"
+	"github.com/shhj1998/rss-search-api/rsserver/rssitem"
 	"github.com/stretchr/testify/assert"
 	"testing"
 )
 
 func TestItemController_Fetch(t *testing.T) {
-	var itemList []*gofeed.Item
-	var answerItems []*gofeed.Item
-	answerItems = append(answerItems, &gofeed.Item{GUID: "media:news:20190708154212517", Title: "I think it is a good day", Link: "link01", Description: "so do I!", Published: "2019-07-08 06:42:12"})
-	answerItems = append(answerItems, &gofeed.Item{GUID: "media:news:20190708154523636", Title: "It's raining outside...", Link: "link02", Description: "I'm getting tired...", Published: "2019-07-09 07:42:12"})
+	var actualItems, expectedItems []*rssitem.Schema
+
+	expectedItems = append(expectedItems, &rssitem.Schema{gofeed.Item{GUID: "media:news:20190708154212517", Title: "I think it is a good day", Link: "link01", Description: "so do I!", Published: "2019-07-08 06:42:12"}})
+	expectedItems = append(expectedItems, &rssitem.Schema{gofeed.Item{GUID: "media:news:20190708154523636", Title: "It's raining outside...", Link: "link02", Description: "I'm getting tired...", Published: "2019-07-09 07:42:12"}})
 
 	db, mock, _ := sqlmock.New()
 	defer db.Close()
@@ -24,11 +24,11 @@ func TestItemController_Fetch(t *testing.T) {
 	mock.ExpectQuery("select").WillReturnRows(mockRows)
 	rows, _ := db.Query(`select`)
 
-	err := item.Fetch(rows, &itemList)
+	err := rssitem.Fetch(rows, &actualItems)
 	assert.Nil(t, err)
-	assert.Equal(t, len(itemList), 2)
+	assert.Equal(t, len(actualItems), 2)
 
-	for idx := range itemList {
-		assert.Equal(t, itemList[idx], answerItems[idx])
+	for idx := range actualItems {
+		assert.Equal(t, actualItems[idx], actualItems[idx])
 	}
 }
