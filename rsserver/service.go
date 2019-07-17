@@ -9,13 +9,6 @@ import (
 	"time"
 )
 
-type DB struct {
-	connection   *sql.DB
-	Name         string
-	ItemTable    *rssitem.Table
-	ChannelTable *rsschannel.Table
-}
-
 func (db *DB) Open(name, address, id, password string) (err error) {
 	dbInfo := fmt.Sprintf("%s:%s@tcp(%s)/%s", id, password, address, name)
 	conn, err := sql.Open("mysql", dbInfo)
