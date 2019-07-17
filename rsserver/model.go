@@ -14,41 +14,39 @@ type DB struct {
 }
 
 const (
-	itemSchema = `CREATE TABLE Item (
+	itemSchema = `CREATE TABLE IF NOT EXISTS Item (
 					item_id INT NOT NULL AUTO_INCREMENT,
-					guid VARCHAR(30) NOT NULL,
+					guid VARCHAR(30) NOT NULL UNIQUE,
 					title VARCHAR(255),
 					link VARCHAR(255),
 					description TEXT,
 					pub_date DATETIME,
 					creator VARCHAR(255),
-					CONSTRAINT PRIMARY KEY (item_id),
-					CONSTRAINT INDEX (item_id),
-					CONSTRAINT UNIQUE (guid)`
+					INDEX (item_id),
+					PRIMARY KEY (item_id))`
 
-	enclosureSchema = `CREATE TABLE Enclosure (
+	enclosureSchema = `CREATE TABLE IF NOT EXISTS Enclosure (
 						item INT NOT NULL,
-						url VARCHAR(255) NOT NULL,
+						url VARCHAR(255) NOT NULL UNIQUE,
 						length VARCHAR(30),
 						type VARCHAR(30),
-						CONSTRAINT PRIMARY KEY (item, url),
-						CONSTRAINT INDEX (item),
-						CONSTRAINT FOREIGN KEY (item) REFERENCES Item(item_id)`
+						INDEX (item),
+						PRIMARY KEY (item, url),
+						FOREIGN KEY (item) REFERENCES Item(item_id))`
 
-	channelSchema = `CREATE TABLE Channel (
+	channelSchema = `CREATE TABLE IF NOT EXISTS Channel (
 						channel_id INT NOT NULL AUTO_INCREMENT,
-						title VARCHAR(255),
-						description VARCHAR(255),
-						site_link VARCHAR(255),
-						rss_link VARCHAR(255) NOT NULL,
-						CONSTRAINT PRIMARY KEY (channel_id)
-						CONSTRAINT UNIQUE (rss_link)`
+						title VARCHAR(255) DEFAULT "",
+						description VARCHAR(255) DEFAULT "",
+						site_link VARCHAR(255) DEFAULT "",
+						rss_link VARCHAR(255) NOT NULL UNIQUE,
+						INDEX (channel_id),
+						PRIMARY KEY (channel_id))`
 
-	publishSchema = `CREATE TABLE Publish (
+	publishSchema = `CREATE TABLE IF NOT EXISTS Publish (
 						item INT NOT NULL,
 						channel INT NOT NULL,
-						CONSTRAINT PRIMARY KEY (item, channel),
-						CONSTRAINT INDEX (channel),
-						CONSTRAINT FOREIGN KEY (item) REFERENCES Item(item_id),
-						CONSTRAINT FOREIGN KEY (channel) REFERENCES Channel(channel_id)`
+						PRIMARY KEY (item, channel),
+						FOREIGN KEY (item) REFERENCES Item(item_id),
+						FOREIGN KEY (channel) REFERENCES Channel(channel_id))`
 )

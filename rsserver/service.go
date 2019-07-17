@@ -4,6 +4,7 @@ import (
 	"database/sql"
 	"fmt"
 	"github.com/mmcdole/gofeed"
+	"github.com/shhj1998/rss-search-api/rsserver/handle"
 	"github.com/shhj1998/rss-search-api/rsserver/rsschannel"
 	"github.com/shhj1998/rss-search-api/rsserver/rssitem"
 	"time"
@@ -23,8 +24,29 @@ func (db *DB) Open(name, address, id, password string) (err error) {
 	}
 }
 
-func (db *DB) Create() {
+func (db *DB) Create() (err error) {
+	tx, err := db.connection.Begin()
+	if err != nil {
+		return err
+	}
 
+	if _, err := tx.Exec(itemSchema); err != nil {
+		return handle.Transaction(tx, err)
+	}
+
+	if _, err := tx.Exec(enclosureSchema); err != nil {
+		return handle.Transaction(tx, err)
+	}
+
+	if _, err := tx.Exec(channelSchema); err != nil {
+		return handle.Transaction(tx, err)
+	}
+
+	if _, err := tx.Exec(publishSchema); err != nil {
+		return handle.Transaction(tx, err)
+	}
+
+	return tx.Commit()
 }
 
 func (db *DB) Close() (err error) {
@@ -33,28 +55,32 @@ func (db *DB) Close() (err error) {
 }
 
 func (db *DB) Update() (err error) {
+	var tx *sql.Tx
+	if tx, err = db.connection.Begin(); err != nil {
+		return err
+	}
+
 	parser := gofeed.NewParser()
-	conn := db.connection
 
-	updateChannel, _ := conn.Prepare(`UPDATE Channel SET title=?, description=?, site_link=? WHERE channel_id=?`)
-	insertItem, _ := conn.Prepare(`INSERT INTO Item (guid, title, description, link, pub_date, creator) VALUES (?, ?, ?, ?, ?, ?)
+	updateChannel, _ := db.connection.Prepare(`UPDATE Channel SET title=?, description=?, site_link=? WHERE channel_id=?`)
+	insertItem, _ := db.connection.Prepare(`INSERT INTO Item (guid, title, description, link, pub_date, creator) VALUES (?, ?, ?, ?, ?, ?)
 											ON DUPLICATE KEY UPDATE title=?, description=?, link=?, pub_date=?, creator=?`)
-	insertEnclosure, _ := conn.Prepare(`INSERT IGNORE INTO Enclosure (item, url, length, type) VALUES (?, ?, ?, ?)`)
-	insertPublish, _ := conn.Prepare(`INSERT IGNORE INTO Publish (item, channel) VALUES (?, ?)`)
+	insertEnclosure, _ := db.connection.Prepare(`INSERT IGNORE INTO Enclosure (item, url, length, type) VALUES (?, ?, ?, ?)`)
+	insertPublish, _ := db.connection.Prepare(`INSERT IGNORE INTO Publish (item, channel) VALUES (?, ?)`)
 
-	if channelRows, err := db.connection.Query(`SELECT channel_id, rss_link FROM Channel`); err == nil {
+	if channelRows, err := tx.Query(`SELECT channel_id, rss_link FROM Channel`); err == nil {
 		for channelRows.Next() {
 			var channelID int
 			var rssLink string
 
 			if err := channelRows.Scan(&channelID, &rssLink); err != nil {
-				return err
+				return handle.Transaction(tx, err)
 			}
 
 			channel, _ := parser.ParseURL(rssLink)
 
 			if _, err := updateChannel.Exec(channel.Title, channel.Description, channel.Link, channelID); err != nil {
-				return err
+				return handle.Transaction(tx, err)
 			}
 
 			for _, item := range channel.Items {
@@ -67,23 +93,30 @@ func (db *DB) Update() (err error) {
 					author = item.Author.Name
 				}
 
-				if _, err := insertItem.Exec(item.GUID, item.Title, item.Description, item.Link, publishedDate, author, item.Title, item.Description, item.Link, publishedDate, author); err != nil {
-					return err
+				var result sql.Result
+				if result, err = insertItem.Exec(item.GUID, item.Title, item.Description, item.Link, publishedDate, author, item.Title, item.Description, item.Link, publishedDate, author); err != nil {
+					return handle.Transaction(tx, err)
 				}
 
-				if _, err := insertPublish.Exec(item.GUID, channelID); err != nil {
-					return err
-				}
+				success, _ := result.RowsAffected()
+				if success == 1 {
+					id, _ := result.LastInsertId()
 
-				for _, enclosure := range item.Enclosures {
-					if _, err := insertEnclosure.Exec(item.GUID, enclosure.URL, enclosure.Length, enclosure.Type); err != nil {
-						return err
+					if _, err := insertPublish.Exec(id, channelID); err != nil {
+						return handle.Transaction(tx, err)
+					}
+
+					for _, enclosure := range item.Enclosures {
+						if _, err := insertEnclosure.Exec(id, enclosure.URL, enclosure.Length, enclosure.Type); err != nil {
+							return handle.Transaction(tx, err)
+						}
 					}
 				}
 			}
 		}
-		return nil
+
+		return tx.Commit()
 	} else {
-		return err
+		return handle.Transaction(tx, err)
 	}
 }
