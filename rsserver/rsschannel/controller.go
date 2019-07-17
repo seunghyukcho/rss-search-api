@@ -59,7 +59,7 @@ func (table *Table) getChannelWithItems(channel *Schema, count int) (err error) 
 	}
 
 	itemRows, err := tx.Query(`SELECT I.guid, I.title, I.link, I.description, I.pub_date, I.creator, e.url, e.length, e.type 
-																			FROM Channel c JOIN Publish p ON c.channel_id=p.channel JOIN Item I ON p.item=I.item_id LEFT JOIN Enclosure e ON I.guid=e.item 
+																			FROM Channel c JOIN Publish p ON c.channel_id=p.channel JOIN Item I ON p.item=I.item_id LEFT JOIN Enclosure e ON I.item_id=e.item 
 																			WHERE channel_id=? ORDER BY I.pub_date DESC LIMIT 0,?`, channel.Id, count)
 	if err != nil {
 		return handle.Transaction(tx, err)
