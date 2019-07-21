@@ -29,6 +29,6 @@ func TestItemController_Fetch(t *testing.T) {
 	assert.Equal(t, len(actualItems), 2)
 
 	for idx := range actualItems {
-		assert.Equal(t, actualItems[idx], actualItems[idx])
+		assert.Equal(t, expectedItems[idx], actualItems[idx])
 	}
 }

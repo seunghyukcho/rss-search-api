@@ -12,7 +12,9 @@ type createParams struct {
 	Link string `form:"rss" json:"rss" xml:"rss" binding:"required"`
 }
 
-func (server *Server) GetChannels(ctx *gin.Context) {
+// SelectChannels fetch channels from server and store the result
+// in ctx body.
+func (server *Server) SelectChannels(ctx *gin.Context) {
 	var channels []*rsschannel.Schema
 	if err := server.DB.ChannelTable.Select(&channels); err != nil {
 		ctx.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
@@ -21,7 +23,9 @@ func (server *Server) GetChannels(ctx *gin.Context) {
 	}
 }
 
-func (server *Server) GetChannelsWithItems(ctx *gin.Context) {
+// SelectChannelsWithItems fetch channels with its item from server and store the result
+// in ctx body.
+func (server *Server) SelectChannelsWithItems(ctx *gin.Context) {
 	var channels []*rsschannel.Schema
 	var err error
 	var count int
@@ -51,9 +55,9 @@ func (server *Server) GetChannelsWithItems(ctx *gin.Context) {
 			if err != nil {
 				ctx.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
 				return
-			} else {
-				params[idx] = id
 			}
+
+			params[idx] = id
 		}
 	}
 
@@ -64,6 +68,8 @@ func (server *Server) GetChannelsWithItems(ctx *gin.Context) {
 	}
 }
 
+// CreateChannel fetch channels from server and store the result
+// in ctx body.
 func (server *Server) CreateChannel(ctx *gin.Context) {
 	var rss createParams
 	if err := ctx.ShouldBindJSON(&rss); err == nil {
