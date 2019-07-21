@@ -137,7 +137,7 @@ func (table *Table) Create(rssLink string) (err error) {
 
 	fp := gofeed.NewParser()
 	if _, err = fp.ParseURL(rssLink); err == nil {
-		if _, err = tx.Exec(`INSERT INTO Channel(rss_link) VALUE(?)`, rssLink); err != nil {
+		if _, err = tx.Exec(`INSERT INTO Channel (rss_link) VALUE(?)`, rssLink); err != nil {
 			return handle.Transaction(tx, err)
 		}
 	} else {
