@@ -2,7 +2,9 @@ package rsschannel
 
 import "database/sql"
 
-func fetch(channels *sql.Rows, ret *[]*Schema) (err error) {
+// Fetch fetch the rsschannel channel rows from database
+// and store it in channel array ret.
+func Fetch(channels *sql.Rows, ret *[]*Schema) (err error) {
 	for channels.Next() {
 		var channel Schema
 		var title, description, link sql.NullString

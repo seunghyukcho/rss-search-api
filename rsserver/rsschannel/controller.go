@@ -47,7 +47,7 @@ func (table *Table) Select(channels *[]*Schema) (err error) {
 	channelRows, err := tx.Query(`SELECT channel_id, title, description, site_link, rss_link FROM Channel`)
 
 	if err == nil {
-		if err := fetch(channelRows, channels); err != nil {
+		if err := Fetch(channelRows, channels); err != nil {
 			return handle.Transaction(tx, err)
 		}
 	} else {
@@ -109,7 +109,7 @@ func (table *Table) SelectWithItems(channels *[]*Schema, ids *[]int, count int) 
 		return handle.Transaction(tx, err)
 	}
 
-	if err = fetch(channelRows, &totalChannels); err != nil {
+	if err = Fetch(channelRows, &totalChannels); err != nil {
 		return handle.Transaction(tx, err)
 	}
 	for _, channel := range totalChannels {

@@ -5,6 +5,8 @@ import (
 	"github.com/mmcdole/gofeed"
 )
 
+// Fetch fetch the rssitem channel rows from database
+// and store it in item array ret.
 func Fetch(items *sql.Rows, ret *[]*Schema) (err error) {
 	itemMap := make(map[string]*Schema)
 
