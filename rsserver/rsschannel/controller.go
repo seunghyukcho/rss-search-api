@@ -57,13 +57,8 @@ func (table *Table) Select(channels *[]*Schema) (err error) {
 	return tx.Commit()
 }
 
-func (table *Table) selectChannelWithItems(channel *Schema, count int) (err error) {
-	var tx *sql.Tx
+func (table *Table) selectChannelWithItems(tx *sql.Tx, channel *Schema, count int) (err error) {
 	var items []*rssitem.Schema
-
-	if tx, err = table.Connection.Begin(); err != nil {
-		return err
-	}
 
 	itemRows, err := tx.Query(`SELECT I.guid, I.title, I.link, I.description, I.pub_date, I.creator, e.url, e.length, e.type 
 																			FROM Channel c JOIN Publish p ON c.channel_id=p.channel JOIN Item I ON p.item=I.item_id LEFT JOIN Enclosure e ON I.item_id=e.item 
@@ -78,7 +73,7 @@ func (table *Table) selectChannelWithItems(channel *Schema, count int) (err erro
 		}
 	}
 
-	return tx.Commit()
+	return nil
 }
 
 func containValue(ids *[]int, find int) bool {
@@ -112,13 +107,14 @@ func (table *Table) SelectWithItems(channels *[]*Schema, ids *[]int, count int) 
 	if err = Fetch(channelRows, &totalChannels); err != nil {
 		return handle.Transaction(tx, err)
 	}
+
 	for _, channel := range totalChannels {
 		if ids != nil && !containValue(ids, channel.ID) {
 			continue
 		}
 
-		if err = table.selectChannelWithItems(channel, count); err != nil {
-			return handle.Transaction(tx, err)
+		if err = table.selectChannelWithItems(tx, channel, count); err != nil {
+			return err
 		}
 
 		*channels = append(*channels, channel)
