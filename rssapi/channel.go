@@ -14,7 +14,7 @@ type createParams struct {
 
 func (server *Server) GetChannels(ctx *gin.Context) {
 	var channels []*rsschannel.Schema
-	if err := server.DB.ChannelTable.Get(&channels); err != nil {
+	if err := server.DB.ChannelTable.Select(&channels); err != nil {
 		ctx.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
 	} else {
 		ctx.JSON(http.StatusOK, channels)
@@ -57,7 +57,7 @@ func (server *Server) GetChannelsWithItems(ctx *gin.Context) {
 		}
 	}
 
-	if err := server.DB.ChannelTable.GetWithItems(&channels, idParams, count); err != nil {
+	if err := server.DB.ChannelTable.SelectWithItems(&channels, idParams, count); err != nil {
 		ctx.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
 	} else {
 		ctx.JSON(http.StatusOK, channels)

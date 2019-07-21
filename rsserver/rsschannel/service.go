@@ -2,11 +2,11 @@ package rsschannel
 
 import "database/sql"
 
-func Fetch(channels *sql.Rows, ret *[]*Schema) (err error) {
+func fetch(channels *sql.Rows, ret *[]*Schema) (err error) {
 	for channels.Next() {
 		var channel Schema
 		var title, description, link sql.NullString
-		if err = channels.Scan(&channel.Id, &title, &description, &link, &channel.RSSLink); err != nil {
+		if err = channels.Scan(&channel.ID, &title, &description, &link, &channel.RSSLink); err != nil {
 			return err
 		}
 
