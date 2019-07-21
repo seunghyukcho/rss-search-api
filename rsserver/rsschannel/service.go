@@ -15,19 +15,19 @@ func Fetch(channels *sql.Rows, ret *[]*Schema) (err error) {
 		if title.Valid {
 			channel.Title = title.String
 		} else {
-			channel.Title = " "
+			channel.Title = ""
 		}
 
 		if description.Valid {
 			channel.Description = description.String
 		} else {
-			channel.Description = " "
+			channel.Description = ""
 		}
 
 		if link.Valid {
 			channel.Link = link.String
 		} else {
-			channel.Link = " "
+			channel.Link = ""
 		}
 
 		*ret = append(*ret, &channel)
