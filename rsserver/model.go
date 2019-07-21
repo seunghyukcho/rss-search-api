@@ -6,6 +6,7 @@ import (
 	"github.com/shhj1998/rss-search-api/rsserver/rssitem"
 )
 
+// DB contains the database information and connections.
 type DB struct {
 	connection   *sql.DB
 	Name         string

@@ -10,20 +10,27 @@ import (
 	"time"
 )
 
+// Open make a connection to database with the following parameters.
+// It use db name, host address, db ID and password.
 func (db *DB) Open(name, address, id, password string) (err error) {
-	dbInfo := fmt.Sprintf("%s:%s@tcp(%s)/%s", id, password, address, name)
-	if conn, err := sql.Open("mysql", dbInfo); err != nil {
-		return err
-	} else {
-		db.connection = conn
-		db.Name = name
-		db.ItemTable = &rssitem.Table{conn}
-		db.ChannelTable = &rsschannel.Table{conn}
+	var conn *sql.DB
 
-		return nil
+	dbInfo := fmt.Sprintf("%s:%s@tcp(%s)/%s", id, password, address, name)
+	if conn, err = sql.Open("mysql", dbInfo); err != nil {
+		return err
 	}
+
+	db.connection = conn
+	db.Name = name
+	db.ItemTable = &rssitem.Table{conn}
+	db.ChannelTable = &rsschannel.Table{conn}
+
+	return nil
 }
 
+// Create creates the table that is used in rsschannel and rssitem package.
+// If their is an existing table, than it will throw error. Drop should be done
+// manually.
 func (db *DB) Create() (err error) {
 	tx, err := db.connection.Begin()
 	if err != nil {
@@ -49,11 +56,13 @@ func (db *DB) Create() (err error) {
 	return tx.Commit()
 }
 
+// Close close the database connection.
 func (db *DB) Close() (err error) {
 	err = db.connection.Close()
 	return err
 }
 
+// Update updates the database for example, channel information and channel items.
 func (db *DB) Update() (err error) {
 	var tx *sql.Tx
 	if tx, err = db.connection.Begin(); err != nil {
@@ -116,7 +125,7 @@ func (db *DB) Update() (err error) {
 		}
 
 		return tx.Commit()
-	} else {
-		return handle.Transaction(tx, err)
 	}
+
+	return handle.Transaction(tx, err)
 }
