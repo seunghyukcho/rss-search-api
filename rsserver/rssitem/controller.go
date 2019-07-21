@@ -1,3 +1,5 @@
+// Package rssitem provides functionality to act with
+// rsserver's item Table.
 package rssitem
 
 import (
