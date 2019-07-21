@@ -90,6 +90,8 @@ func containValue(ids *[]int, find int) bool {
 
 func (table *Table) GetWithItems(channels *[]*Schema, ids *[]int, count int) (err error) {
 	var tx *sql.Tx
+	var totalChannels []*Schema
+
 	if tx, err = table.Connection.Begin(); err != nil {
 		return err
 	}
@@ -97,10 +99,10 @@ func (table *Table) GetWithItems(channels *[]*Schema, ids *[]int, count int) (er
 	if channelRows, err := tx.Query(`SELECT channel_id, title, description, site_link, rss_link FROM Channel`); err != nil {
 		return handle.Transaction(tx, err)
 	} else {
-		if err = Fetch(channelRows, channels); err != nil {
+		if err = Fetch(channelRows, &totalChannels); err != nil {
 			return handle.Transaction(tx, err)
 		} else {
-			for _, channel := range *channels {
+			for _, channel := range totalChannels {
 				if ids != nil && !containValue(ids, channel.Id) {
 					continue
 				}
@@ -108,6 +110,8 @@ func (table *Table) GetWithItems(channels *[]*Schema, ids *[]int, count int) (er
 				if err = table.getChannelWithItems(channel, count); err != nil {
 					return handle.Transaction(tx, err)
 				}
+
+				*channels = append(*channels, channel)
 			}
 		}
 	}
