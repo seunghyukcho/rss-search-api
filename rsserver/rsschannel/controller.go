@@ -74,8 +74,24 @@ func (table *Table) getChannelWithItems(channel *Schema, count int) (err error) 
 	return tx.Commit()
 }
 
-func (table *Table) GetWithItems(channels *[]*Schema, count int) (err error) {
+func containValue(ids *[]int, find int) bool {
+	if ids == nil {
+		return false
+	}
+
+	for _, val := range *ids {
+		if val == find {
+			return true
+		}
+	}
+
+	return false
+}
+
+func (table *Table) GetWithItems(channels *[]*Schema, ids *[]int, count int) (err error) {
 	var tx *sql.Tx
+	var totalChannels []*Schema
+
 	if tx, err = table.Connection.Begin(); err != nil {
 		return err
 	}
@@ -83,13 +99,19 @@ func (table *Table) GetWithItems(channels *[]*Schema, count int) (err error) {
 	if channelRows, err := tx.Query(`SELECT channel_id, title, description, site_link, rss_link FROM Channel`); err != nil {
 		return handle.Transaction(tx, err)
 	} else {
-		if err = Fetch(channelRows, channels); err != nil {
+		if err = Fetch(channelRows, &totalChannels); err != nil {
 			return handle.Transaction(tx, err)
 		} else {
-			for idx := range *channels {
-				if err = table.getChannelWithItems((*channels)[idx], count); err != nil {
+			for _, channel := range totalChannels {
+				if ids != nil && !containValue(ids, channel.Id) {
+					continue
+				}
+
+				if err = table.getChannelWithItems(channel, count); err != nil {
 					return handle.Transaction(tx, err)
 				}
+
+				*channels = append(*channels, channel)
 			}
 		}
 	}

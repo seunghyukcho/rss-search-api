@@ -1,6 +1,7 @@
 package rssapi
 
 import (
+	"fmt"
 	"github.com/gin-gonic/gin"
 	"github.com/shhj1998/rss-search-api/rsserver/rsschannel"
 	"net/http"
@@ -24,6 +25,7 @@ func (server *Server) GetChannelsWithItems(ctx *gin.Context) {
 	var channels []*rsschannel.Schema
 	var err error
 	var count int
+	var idParams *[]int
 
 	countParam := ctx.Param("count")
 	if countParam == "" {
@@ -36,7 +38,26 @@ func (server *Server) GetChannelsWithItems(ctx *gin.Context) {
 		}
 	}
 
-	if err := server.DB.ChannelTable.GetWithItems(&channels, count); err != nil {
+	fmt.Println(ctx.Request.URL, ctx.QueryArray("id"))
+	ids := ctx.QueryArray("id")
+
+	if len(ids) == 0 {
+		idParams = nil
+	} else {
+		params := make([]int, len(ids))
+		idParams = &params
+		for idx, val := range ids {
+			id, err := strconv.Atoi(val)
+			if err != nil {
+				ctx.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+				return
+			} else {
+				params[idx] = id
+			}
+		}
+	}
+
+	if err := server.DB.ChannelTable.GetWithItems(&channels, idParams, count); err != nil {
 		ctx.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
 	} else {
 		ctx.JSON(http.StatusOK, channels)
@@ -45,7 +66,7 @@ func (server *Server) GetChannelsWithItems(ctx *gin.Context) {
 
 func (server *Server) CreateChannel(ctx *gin.Context) {
 	var rss createParams
-	if err := ctx.ShouldBind(&rss); err == nil {
+	if err := ctx.ShouldBindJSON(&rss); err == nil {
 		if err := server.DB.ChannelTable.Create(rss.Link); err != nil {
 			ctx.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
 		} else {
