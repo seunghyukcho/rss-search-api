@@ -10,6 +10,7 @@ import (
 	"net/http/httptest"
 	"net/url"
 	"os"
+	"strconv"
 	"testing"
 )
 
@@ -57,5 +58,45 @@ func BenchmarkServer_SelectChannelsWithItems(b *testing.B) {
 		if server.SelectChannelsWithItems(c); w.Code != http.StatusOK {
 			b.Fail()
 		}
+	}
+}
+
+func BenchmarkServer_SelectChannelsWithItems2(b *testing.B) {
+	server := serverSetting()
+	defer server.DB.Close()
+
+	gin.SetMode(gin.TestMode)
+
+	w := httptest.NewRecorder()
+	sampleURL, _ := url.Parse("https://sample/api/v1/channel/items?id=3")
+	c, _ := gin.CreateTestContext(w)
+	c.Request = &http.Request{URL: sampleURL}
+
+	for i := 0; i < b.N; i++ {
+		if server.SelectChannelsWithItems(c); w.Code != http.StatusOK {
+			b.Fail()
+		}
+	}
+}
+
+func BenchmarkServer_SelectChannelsWithItems3(b *testing.B) {
+	server := serverSetting()
+	defer server.DB.Close()
+
+	gin.SetMode(gin.TestMode)
+
+	w := httptest.NewRecorder()
+	c, _ := gin.CreateTestContext(w)
+
+	for cnt := 1; cnt <= 10; cnt++ {
+		sampleURL, _ := url.Parse("https://sample/api/v1/channel/items/count/" + strconv.Itoa(cnt))
+		c.Request = &http.Request{URL: sampleURL}
+		b.Run("count"+strconv.Itoa(cnt), func(b *testing.B) {
+			for i := 0; i < b.N; i++ {
+				if server.SelectChannelsWithItems(c); w.Code != http.StatusOK {
+					b.Fail()
+				}
+			}
+		})
 	}
 }
