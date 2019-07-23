@@ -8,22 +8,259 @@
 
 This repository is a server code for fetching and searching RSS data efficiently. There are also many useful Go packages to help you develop your own RSS project!
 
+## Table of Contents
+
+1. [Packages](#packages)
+2. [Getting Start](#getting-start)
+3. [API](#api)
+   - [Item API](#item-api)
+   - [Channel API](#channel-api)
+
+4. [Schema](#schema)
+   - [ER Model](#er-model)
+   - [Table](#table)
+5. [Performance](#performance)
+   - [Test DB Info](#test-db-info)
+   - [Results](#results)
+6. [See also](#see-also)
+
 ## Packages
 
 - [rsserver](https://github.com/shhj1998/rss-search-api/tree/master/rsserver) : Our main package that provides many functionalities to act with our rss database. More information is available on our [documentation](https://godoc.org/github.com/shhj1998/rss-search-api/rsserver).
 - [rssapi](https://github.com/shhj1998/rss-search-api/tree/master/rssapi) : A simple REST api server that uses rsserver package. Available apis are described below.
 
+## Getting Start
+
+After downloading the repository, you should enter the following commands to run a rss-search-api server.
+
+```bash
+> dep ensure
+> go run main.go
+```
+
+Before running, you should make a .env file to connect with your database. The sample .env file is [here](https://github.com/shhj1998/rss-search-api/blob/master/.env.example).
+
 ## API
-### Channel API
 
 ### Item API
 
+These apis help you to fetch and create rss item information.
+
+#### GET /api/v1/item
+
+##### Request
+
+```bash
+curl -i -H 'Accept: application/json' http://localhost/api/v1/item
+```
+
+##### Response
+
+```json
+[
+  {
+    "title": "...",
+    "description": "...",
+    "link": "...",
+    "published": "...",
+    "author": {
+      "name": "..."
+    },
+    "guid": "...",
+    "enclosures": [
+      {
+        "url": "...",
+        "type": "..."
+      },
+      ...
+    ]
+  }, 
+  ...
+]
+```
+
+### Channel API
+
+These apis help you to fetch and create rss channel information.
+
+#### GET /api/v1/channel
+
+##### Request
+
+```bash
+curl -i -H 'Accept: application/json' http://localhost/api/v1/channel
+```
+
+##### Response
+
+```json
+[
+  {
+    "id": 1,
+    "rsslink": "https://media.daum.net/syndication/society.rss",
+    "title": "다음뉴스 - 사회Top RSS",
+    "link": "http://media.daum.net/society/",
+    "items": null,
+    "feedType": "",
+    "feedVersion": ""
+  },
+  {
+    "id": 9,
+    "rsslink": "https://media.daum.net/syndication/entertain.rss",
+    "items": null,
+    "feedType": "",
+    "feedVersion": ""
+  }
+]
+```
+
+#### POST /api/v1/channel
+
+##### Request
+
+```bash
+curl -i -H 'Accept: application/json' -X POST \ 
+	--data '{"rss": "https://media.daum.net/syndication/entertain.rss"}' \
+	http://localhost/api/v1/channel
+```
+
+##### Response
+
+```json
+{
+  "success": "successfully created a new Channel"
+}
+```
+
+##### Error
+
+- If you forgot adding request body with rss link, 
+
+```json
+{
+  "error": "Request body doesn't match the api... Please read our api docs"
+}
+```
+
+- If your rss link is invalid,
+
+```json
+{
+  "error": "http error: 400 Bad Request"
+}
+```
+
+- If your rss link is not a rss,
+
+```json
+{
+  "error": "Failed to detect feed type"
+}
+```
+
+- If you are creating an already existing rss channel,
+
+```json
+{
+  "error": "Error 1062: Duplicate entry '...' for key 'rss_link'"
+}
+```
+
+#### GET /api/v1/channel/items
+
+##### Request - fetch all channels with items
+
+```bash
+curl -i -H 'Accept: application/json' http://localhost/api/v1/channel/items
+```
+
+##### Response
+
+```json
+[
+  {
+    "id": 1,
+    "rsslink": "https://media.daum.net/syndication/society.rss",
+    "title": "...",
+    "link": "...",
+    "items": [...],
+    "feedType": "",
+    "feedVersion": ""
+  },
+  {
+    "id": 9,
+    "rsslink": "https://media.daum.net/syndication/entertain.rss",
+    "items": null,
+    "feedType": "",
+    "feedVersion": ""
+  }
+]
+```
+
+##### Request - fetch specific channels with items
+
+You can filter the channel you only want by query strings. It is available to put multiple channel's id.
+
+```bash
+curl -i -H 'Accept: application/json' http://localhost/api/v1/channel/items?id=1&id=2000
+```
+
+##### Response
+
+```json
+[
+  {
+    "id": 1,
+    "rsslink": "https://media.daum.net/syndication/society.rss",
+    "title": "...",
+    "link": "...",
+    "items": [...],
+    "feedType": "",
+    "feedVersion": ""
+  }
+]
+```
+
+#### GET /api/v1/channel/items/count/{count}
+
+You can also use the feature of channel filtering with query string described in **GET /api/v1/channel/items**.
+
+##### Request
+
+```bash
+curl -i -H 'Accept: application/json' http://localhost/api/v1/channel/items/count/1
+```
+
+##### Response
+
+```json
+[
+  {
+    "id": 1,
+    "rsslink": "https://media.daum.net/syndication/society.rss",
+    "title": "...",
+    "link": "...",
+    "items": [...],
+    "feedType": "",
+    "feedVersion": ""
+  },
+  {
+    "id": 9,
+    "rsslink": "https://media.daum.net/syndication/entertain.rss",
+    "items": null,
+    "feedType": "",
+    "feedVersion": ""
+  }
+]
+```
+
 ## Schema
 
+### ER Model
 
+### Table
 
 ## Performance
-
 ### Test DB Info
 
 We used 8 rss services and 3594 rss items(news) to test our api performance. The details of the rss services are described below.
@@ -39,9 +276,9 @@ We used 8 rss services and 3594 rss items(news) to test our api performance. The
 | 다음뉴스 - 문화/생활Top RSS    | https://media.daum.net/syndication/culture.rss      | 202  |
 | 다음뉴스 - Tech Top RSS        | https://media.daum.net/syndication/digital.rss      | 163  |
 
-### Result
+### Results
 
-Detail of the result is described below. The code used to test performance is [here](https://github.com/shhj1998/rss-search-api/blob/master/rssapi/channel_test.go). It will not work in your local because it must be with a .env file that contains the test db information. We tested three api that were most likely to be used. The **GET /api/v1/channel/items/count/:count** apis show almost same performance although the count value changed.
+Details of the result are described below. The code used to test performance is [here](https://github.com/shhj1998/rss-search-api/blob/master/rssapi/channel_test.go). It will not work in your local repository because it must be with a .env file that contains the test db information. We tested three api that were most likely to be used. **GET /api/v1/channel/items/count/:count** apis show almost same performance although the count value changes.
 
 | API                                | Time(ms)   |
 | ---------------------------------- | ---------- |
@@ -60,7 +297,5 @@ Detail of the result is described below. The code used to test performance is [h
 | GET /api/v1/channel/items/count/10 | 34.5249172 |
 
 ![Imgur](https://i.imgur.com/ztFsvEJ.png)
-
-
 
 ## See also
