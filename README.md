@@ -15,14 +15,14 @@ This repository is a server code for fetching and searching RSS data efficiently
 3. [API](#api)
    - [Item API](#item-api)
    - [Channel API](#channel-api)
-
 4. [Schema](#schema)
    - [ER Model](#er-model)
    - [Table](#table)
 5. [Performance](#performance)
    - [Test DB Info](#test-db-info)
    - [Results](#results)
-6. [See also](#see-also)
+6. [Library Used](#library-used)
+7. [See Also](#see-also)
 
 ## Packages
 
@@ -48,13 +48,13 @@ These apis help you to fetch and create rss item information.
 
 #### GET /api/v1/item
 
-##### Request
+#### Request
 
 ```bash
 curl -i -H 'Accept: application/json' http://localhost/api/v1/item
 ```
 
-##### Response
+#### Response
 
 ```json
 [
@@ -85,13 +85,13 @@ These apis help you to fetch and create rss channel information.
 
 #### GET /api/v1/channel
 
-##### Request
+#### Request
 
 ```bash
 curl -i -H 'Accept: application/json' http://localhost/api/v1/channel
 ```
 
-##### Response
+#### Response
 
 ```json
 [
@@ -116,7 +116,7 @@ curl -i -H 'Accept: application/json' http://localhost/api/v1/channel
 
 #### POST /api/v1/channel
 
-##### Request
+#### Request
 
 ```bash
 curl -i -H 'Accept: application/json' -X POST \ 
@@ -124,7 +124,7 @@ curl -i -H 'Accept: application/json' -X POST \
 	http://localhost/api/v1/channel
 ```
 
-##### Response
+#### Response
 
 ```json
 {
@@ -132,7 +132,7 @@ curl -i -H 'Accept: application/json' -X POST \
 }
 ```
 
-##### Error
+#### Error
 
 - If you forgot adding request body with rss link, 
 
@@ -168,13 +168,13 @@ curl -i -H 'Accept: application/json' -X POST \
 
 #### GET /api/v1/channel/items
 
-##### Request - fetch all channels with items
+#### Request - fetch all channels with items
 
 ```bash
 curl -i -H 'Accept: application/json' http://localhost/api/v1/channel/items
 ```
 
-##### Response
+#### Response
 
 ```json
 [
@@ -197,7 +197,7 @@ curl -i -H 'Accept: application/json' http://localhost/api/v1/channel/items
 ]
 ```
 
-##### Request - fetch specific channels with items
+#### Request - fetch specific channels with items
 
 You can filter the channel you only want by query strings. It is available to put multiple channel's id.
 
@@ -205,7 +205,7 @@ You can filter the channel you only want by query strings. It is available to pu
 curl -i -H 'Accept: application/json' http://localhost/api/v1/channel/items?id=1&id=2000
 ```
 
-##### Response
+#### Response
 
 ```json
 [
@@ -225,13 +225,13 @@ curl -i -H 'Accept: application/json' http://localhost/api/v1/channel/items?id=1
 
 You can also use the feature of channel filtering with query string described in **GET /api/v1/channel/items**.
 
-##### Request
+### Request
 
 ```bash
 curl -i -H 'Accept: application/json' http://localhost/api/v1/channel/items/count/1
 ```
 
-##### Response
+#### Response
 
 ```json
 [
@@ -258,7 +258,31 @@ curl -i -H 'Accept: application/json' http://localhost/api/v1/channel/items/coun
 
 ### ER Model
 
+- Entity
+  - Channel : RSS Channels provide items(news). It doesn't have a specific primary key, so we set a new feature 'channel_id' as a primary key.
+  - Item : Items are the news published by RSS channels. In RSS 2.0, their is a primary key called 'guid'.
+  - Enclosure : Enclosures are media that is used in items like image, video. Usually, one url only have one media, so we set url as a primary key.
+- Relationship
+  - Publish : This relationship represents what items were published by a channel. It is many-to-many.
+  - Enclosure : This relationship represents which enclosures are used in a item. It is one-to-many.
+
+![Imgur](https://i.imgur.com/IOEGaAR.png)
+
 ### Table
+
+You can see the tables schema [here](https://github.com/shhj1998/rss-search-api/blob/master/rsserver/model.go). We add some b-tree index to higher the performance. If you are interested what is b-tree index, you can look [here](https://www.quora.com/What-is-B-trees-index-in-SQL).
+
+- Item
+  - Because 'guid' is a long string, it will lower performance in search. So we made a new primary key which is integer named 'item_id'. Instead, we add a unique contraint to guid.
+  - We add a b-tree index on item_id because it will be frequently used in joining with Publish table.
+- Channel
+  - Nothing special, just add a auto_increment integer primary key 'channel_id' with a b-tree index.
+- Publish
+  - To satisfy [BCNF](https://en.wikipedia.org/wiki/Boyce–Codd_normal_form) constraints - lower redundancy, we change Publish relationship to a table instead adding a feature in Item. 
+  - Because it is many-to-many, (item, channel) is a primary key. Each of them is a foreign key.
+- Enclosure
+  - Because Media is a one-to-many relationship, it don't need a additional table to lower redundancy.
+  - Add a b-tree index and foreign key constraint to 'item'.
 
 ## Performance
 ### Test DB Info
@@ -298,4 +322,14 @@ Details of the result are described below. The code used to test performance is 
 
 ![Imgur](https://i.imgur.com/ztFsvEJ.png)
 
-## See also
+## Library Used
+
+- [gofeed](github.com/mmcdole/gofeed) - Provides rss parser and related types.
+- [sql-mock](github.com/DATA-DOG/go-sqlmock) - Used to mock sql database and connection for testing.
+- [testify](github.com/stretchr/testify) - Provides useful test functions like assertions.
+- [logger](github.com/google/logger) - Custom logger library.
+
+## See Also
+
+- [RSS 2.0](https://cyber.harvard.edu/rss/rss.html) - More information about RSS specification.
+- [android-rss-viewer](https://github.com/Park-Wonbin/android-rss-viewer) - Android application that uses rss-search-api.
