@@ -306,19 +306,19 @@ Details of the result are described below. The code used to test performance is 
 
 | API                                | Time(ms)   |
 | ---------------------------------- | ---------- |
-| GET /api/v1/channel                | 3.9837295  |
-| GET /api/v1/channel/items          | 29.8150581 |
-| GET /api/v1/channel/items?id=3     | 6.1691366  |
-| GET /api/v1/channel/items/count/1  | 27.7327405 |
-| GET /api/v1/channel/items/count/2  | 27.3187845 |
-| GET /api/v1/channel/items/count/3  | 28.1879731 |
-| GET /api/v1/channel/items/count/4  | 34.7423070 |
-| GET /api/v1/channel/items/count/5  | 28.3924582 |
-| GET /api/v1/channel/items/count/6  | 27.4330836 |
-| GET /api/v1/channel/items/count/7  | 27.9774116 |
-| GET /api/v1/channel/items/count/8  | 27.0644527 |
-| GET /api/v1/channel/items/count/9  | 33.9821699 |
-| GET /api/v1/channel/items/count/10 | 34.5249172 |
+| GET /api/v1/channel                | 39.837295  |
+| GET /api/v1/channel/items          | 298.150581 |
+| GET /api/v1/channel/items?id=3     | 61.691366  |
+| GET /api/v1/channel/items/count/1  | 277.327405 |
+| GET /api/v1/channel/items/count/2  | 273.187845 |
+| GET /api/v1/channel/items/count/3  | 281.879731 |
+| GET /api/v1/channel/items/count/4  | 347.423070 |
+| GET /api/v1/channel/items/count/5  | 283.924582 |
+| GET /api/v1/channel/items/count/6  | 274.330836 |
+| GET /api/v1/channel/items/count/7  | 279.774116 |
+| GET /api/v1/channel/items/count/8  | 270.644527 |
+| GET /api/v1/channel/items/count/9  | 339.821699 |
+| GET /api/v1/channel/items/count/10 | 345.249172 |
 
 ![Imgur](https://i.imgur.com/ztFsvEJ.png)
 
