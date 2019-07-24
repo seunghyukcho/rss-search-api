@@ -23,7 +23,6 @@ const (
 					description TEXT,
 					pub_date DATETIME,
 					creator VARCHAR(255),
-					INDEX (item_id),
 					PRIMARY KEY (item_id))`
 
 	enclosureSchema = `CREATE TABLE IF NOT EXISTS Enclosure (
@@ -41,7 +40,6 @@ const (
 						description VARCHAR(255) DEFAULT "",
 						site_link VARCHAR(255) DEFAULT "",
 						rss_link VARCHAR(255) NOT NULL UNIQUE,
-						INDEX (channel_id),
 						PRIMARY KEY (channel_id))`
 
 	publishSchema = `CREATE TABLE IF NOT EXISTS Publish (
