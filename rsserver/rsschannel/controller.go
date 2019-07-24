@@ -1,3 +1,5 @@
+// Package rsschannel provides functionality to act with
+// rsserver's channel Table.
 package rsschannel
 
 import (
@@ -7,7 +9,9 @@ import (
 	"github.com/shhj1998/rss-search-api/rsserver/rssitem"
 )
 
-func (table *Table) GetLinks(channels *[]*Schema) (err error) {
+// SelectLinks fetch the rss links of channels with its id
+// and store it in channels array.
+func (table *Table) SelectLinks(channels *[]*Schema) (err error) {
 	var tx *sql.Tx
 	if tx, err = table.Connection.Begin(); err != nil {
 		return err
@@ -18,7 +22,7 @@ func (table *Table) GetLinks(channels *[]*Schema) (err error) {
 	if err == nil {
 		for channelRows.Next() {
 			var link Schema
-			if err := channelRows.Scan(&link.Id, &link.RSSLink); err != nil {
+			if err := channelRows.Scan(&link.ID, &link.RSSLink); err != nil {
 				return handle.Transaction(tx, err)
 			}
 
@@ -31,7 +35,10 @@ func (table *Table) GetLinks(channels *[]*Schema) (err error) {
 	return tx.Commit()
 }
 
-func (table *Table) Get(channels *[]*Schema) (err error) {
+// Select fetch the information of channels in the database
+// and store it in channels array. You can see type Schema
+// in model.go to check the features.
+func (table *Table) Select(channels *[]*Schema) (err error) {
 	var tx *sql.Tx
 	if tx, err = table.Connection.Begin(); err != nil {
 		return err
@@ -50,17 +57,12 @@ func (table *Table) Get(channels *[]*Schema) (err error) {
 	return tx.Commit()
 }
 
-func (table *Table) getChannelWithItems(channel *Schema, count int) (err error) {
-	var tx *sql.Tx
+func (table *Table) selectChannelWithItems(tx *sql.Tx, channel *Schema, count int) (err error) {
 	var items []*rssitem.Schema
-
-	if tx, err = table.Connection.Begin(); err != nil {
-		return err
-	}
 
 	itemRows, err := tx.Query(`SELECT I.guid, I.title, I.link, I.description, I.pub_date, I.creator, e.url, e.length, e.type 
 																			FROM Channel c JOIN Publish p ON c.channel_id=p.channel JOIN Item I ON p.item=I.item_id LEFT JOIN Enclosure e ON I.item_id=e.item 
-																			WHERE channel_id=? ORDER BY I.pub_date DESC LIMIT 0,?`, channel.Id, count)
+																			WHERE channel_id=? ORDER BY I.pub_date DESC LIMIT 0,?`, channel.ID, count)
 	if err != nil {
 		return handle.Transaction(tx, err)
 	} else if err = rssitem.Fetch(itemRows, &items); err != nil {
@@ -71,7 +73,7 @@ func (table *Table) getChannelWithItems(channel *Schema, count int) (err error) 
 		}
 	}
 
-	return tx.Commit()
+	return nil
 }
 
 func containValue(ids *[]int, find int) bool {
@@ -88,37 +90,42 @@ func containValue(ids *[]int, find int) bool {
 	return false
 }
 
-func (table *Table) GetWithItems(channels *[]*Schema, ids *[]int, count int) (err error) {
+// SelectWithItems fetch channels with its items. You can
+// limit the channels and items number by the parameter ids and count.
+func (table *Table) SelectWithItems(channels *[]*Schema, ids *[]int, count int) (err error) {
 	var tx *sql.Tx
 	var totalChannels []*Schema
+	var channelRows *sql.Rows
 
 	if tx, err = table.Connection.Begin(); err != nil {
 		return err
 	}
 
-	if channelRows, err := tx.Query(`SELECT channel_id, title, description, site_link, rss_link FROM Channel`); err != nil {
+	if channelRows, err = tx.Query(`SELECT channel_id, title, description, site_link, rss_link FROM Channel`); err != nil {
 		return handle.Transaction(tx, err)
-	} else {
-		if err = Fetch(channelRows, &totalChannels); err != nil {
-			return handle.Transaction(tx, err)
-		} else {
-			for _, channel := range totalChannels {
-				if ids != nil && !containValue(ids, channel.Id) {
-					continue
-				}
+	}
 
-				if err = table.getChannelWithItems(channel, count); err != nil {
-					return handle.Transaction(tx, err)
-				}
+	if err = Fetch(channelRows, &totalChannels); err != nil {
+		return handle.Transaction(tx, err)
+	}
 
-				*channels = append(*channels, channel)
-			}
+	for _, channel := range totalChannels {
+		if ids != nil && !containValue(ids, channel.ID) {
+			continue
 		}
+
+		if err = table.selectChannelWithItems(tx, channel, count); err != nil {
+			return err
+		}
+
+		*channels = append(*channels, channel)
 	}
 
 	return tx.Commit()
 }
 
+// Create makes a new channel instance with the rsslink.
+// It is stored in the configured database.
 func (table *Table) Create(rssLink string) (err error) {
 	var tx *sql.Tx
 	if tx, err = table.Connection.Begin(); err != nil {
@@ -127,7 +134,7 @@ func (table *Table) Create(rssLink string) (err error) {
 
 	fp := gofeed.NewParser()
 	if _, err = fp.ParseURL(rssLink); err == nil {
-		if _, err = tx.Exec(`INSERT INTO Channel(rss_link) VALUE(?)`, rssLink); err != nil {
+		if _, err = tx.Exec(`INSERT INTO Channel (rss_link) VALUE(?)`, rssLink); err != nil {
 			return handle.Transaction(tx, err)
 		}
 	} else {

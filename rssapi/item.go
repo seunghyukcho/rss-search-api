@@ -6,10 +6,12 @@ import (
 	"net/http"
 )
 
-func (server *Server) GetItems(ctx *gin.Context) {
+// SelectItems fetch items from server and store the result
+// in ctx body.
+func (server *Server) SelectItems(ctx *gin.Context) {
 	var items []*rssitem.Schema
 
-	if err := server.DB.ItemTable.Get(&items); err != nil {
+	if err := server.DB.ItemTable.Select(&items); err != nil {
 		ctx.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
 	} else {
 		ctx.JSON(http.StatusOK, items)

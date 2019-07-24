@@ -1,3 +1,5 @@
+// Package rssitem provides functionality to act with
+// rsserver's item Table.
 package rssitem
 
 import (
@@ -5,7 +7,10 @@ import (
 	"github.com/shhj1998/rss-search-api/rsserver/handle"
 )
 
-func (table *Table) Get(items *[]*Schema) (err error) {
+// Select fetch the information of items in the database
+// and store it in items array. You can see type Schema
+// in model.go to check the features.
+func (table *Table) Select(items *[]*Schema) (err error) {
 	var tx *sql.Tx
 	if tx, err = table.Connection.Begin(); err != nil {
 		return err

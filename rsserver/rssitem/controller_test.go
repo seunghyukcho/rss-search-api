@@ -24,8 +24,9 @@ func TestController_GetItems(t *testing.T) {
 	mock.ExpectBegin()
 	mock.ExpectQuery("SELECT").WillReturnRows(mockRows)
 	mock.ExpectCommit()
-	var controller = rssitem.Table{Connection: conn}
-	err := controller.Get(&actualItems)
+
+	controller := rssitem.Table{Connection: conn}
+	err := controller.Select(&actualItems)
 
 	assert.Nil(t, err)
 	assert.Equal(t, expectedItems, actualItems)

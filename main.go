@@ -9,7 +9,6 @@ import (
 	"github.com/shhj1998/rss-search-api/rssapi"
 	"github.com/shhj1998/rss-search-api/rsserver"
 	"io/ioutil"
-	"log"
 	"net/http"
 	"os"
 	"runtime"
@@ -27,7 +26,6 @@ func update(db *rsserver.DB, logger *logger.Logger) {
 func main() {
 	runtime.GOMAXPROCS(runtime.NumCPU())
 
-	logger.SetFlags(log.LstdFlags)
 	customLogger := logger.Init("LogUpdate", true, false, ioutil.Discard)
 	if err := godotenv.Load(); err != nil {
 		fmt.Println(err.Error())
@@ -53,7 +51,11 @@ func main() {
 		for {
 			select {
 			case <-ticker.C:
-				update(db, customLogger)
+				if err := db.Update(); err != nil {
+					customLogger.Error(err.Error())
+				} else {
+					customLogger.Info("Update RSS Database successfully!")
+				}
 				_, _ = http.Get("https://rss-search-api.herokuapp.com/api/v1/channel")
 			}
 		}
@@ -68,15 +70,15 @@ func main() {
 	itemRouter := v1.Group("/item")
 
 	{
-		channelRouter.GET("", apiServer.GetChannels)
-		channelRouter.GET("/items/", apiServer.GetChannelsWithItems)
-		channelRouter.GET("/items/count/:count", apiServer.GetChannelsWithItems)
+		channelRouter.GET("", apiServer.SelectChannels)
+		channelRouter.GET("/items/", apiServer.SelectChannelsWithItems)
+		channelRouter.GET("/items/count/:count", apiServer.SelectChannelsWithItems)
 		channelRouter.POST("", apiServer.CreateChannel)
 	}
 
 	{
-		itemRouter.GET("", apiServer.GetItems)
+		itemRouter.GET("", apiServer.SelectItems)
 	}
 
-	mainRouter.Run(":" + port)
+	_ = mainRouter.Run(":" + port)
 }
