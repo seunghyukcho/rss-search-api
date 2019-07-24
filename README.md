@@ -280,6 +280,7 @@ You can see the tables schema [here](https://github.com/shhj1998/rss-search-api/
 - Publish
   - To satisfy [BCNF](https://en.wikipedia.org/wiki/Boyce–Codd_normal_form) constraints - lower redundancy, we change Publish relationship to a table instead adding a feature in Item. 
   - Because it is many-to-many, (item, channel) is a primary key. Each of them is a foreign key.
+  - Add a b-tree index to 'channel'.
 - Enclosure
   - Because Media is a one-to-many relationship, it don't need a additional table to lower redundancy.
   - Add a b-tree index and foreign key constraint to 'item'.
@@ -287,7 +288,7 @@ You can see the tables schema [here](https://github.com/shhj1998/rss-search-api/
 ## Performance
 ### Test DB Info
 
-We used 8 rss services and 3594 rss items(news) to test our api performance. The details of the rss services are described below.
+We used 8 rss services and 3594 rss items(news) to test our api performance. The details of the rss services are described below. The data we used to test are available [here](https://drive.google.com/file/d/1oYRqRyp56PQuHcnNJW9Non5rwjnasSLL/view?usp=sharing).
 
 | Name                           | Link                                                | Rows |
 | ------------------------------ | --------------------------------------------------- | ---- |
@@ -302,7 +303,7 @@ We used 8 rss services and 3594 rss items(news) to test our api performance. The
 
 ### Results
 
-Details of the result are described below. The code used to test performance is [here](https://github.com/shhj1998/rss-search-api/blob/master/rssapi/channel_test.go). It will not work in your local repository because it must be with a .env file that contains the test db information. We tested three api that were most likely to be used. **GET /api/v1/channel/items/count/:count** apis show almost same performance although the count value changes.
+Details of the result are described below. The code used to test performance is [here](https://github.com/shhj1998/rss-search-api/blob/master/rssapi/channel_test.go). It will not work in your local repository because it must be with a .env file that contains the test db information. We tested three api that were most likely to be used. **GET /api/v1/channel/items/count/{count}** apis show almost same performance although the count value changes.
 
 | API                                | Time(ms)   |
 | ---------------------------------- | ---------- |
