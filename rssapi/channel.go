@@ -1,7 +1,6 @@
 package rssapi
 
 import (
-	"fmt"
 	"github.com/gin-gonic/gin"
 	"github.com/shhj1998/rss-search-api/rsserver/rsschannel"
 	"net/http"
