@@ -15,6 +15,14 @@ import (
 	"time"
 )
 
+func update(db *rsserver.DB, logger *logger.Logger) {
+	if err := db.Update(); err != nil {
+		logger.Error(err.Error())
+	} else {
+		logger.Info("Update RSS Database successfully!")
+	}
+}
+
 func main() {
 	runtime.GOMAXPROCS(runtime.NumCPU())
 
@@ -48,7 +56,6 @@ func main() {
 				} else {
 					customLogger.Info("Update RSS Database successfully!")
 				}
-
 				_, _ = http.Get("https://rss-search-api.herokuapp.com/api/v1/channel")
 			}
 		}

@@ -1,6 +1,7 @@
 package rssapi
 
 import (
+	"fmt"
 	"github.com/gin-gonic/gin"
 	"github.com/shhj1998/rss-search-api/rsserver/rsschannel"
 	"net/http"
@@ -42,6 +43,7 @@ func (server *Server) SelectChannelsWithItems(ctx *gin.Context) {
 	}
 
 	ids := ctx.QueryArray("id")
+
 	if len(ids) == 0 {
 		idParams = nil
 	} else {

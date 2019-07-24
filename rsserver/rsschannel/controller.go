@@ -96,6 +96,7 @@ func (table *Table) SelectWithItems(channels *[]*Schema, ids *[]int, count int) 
 	var tx *sql.Tx
 	var totalChannels []*Schema
 	var channelRows *sql.Rows
+
 	if tx, err = table.Connection.Begin(); err != nil {
 		return err
 	}
