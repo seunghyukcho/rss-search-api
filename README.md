@@ -6,7 +6,7 @@
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 [![](https://godoc.org/github.com/shhj1998/rss-search-api/rsserver?status.svg)](https://godoc.org/github.com/shhj1998/rss-search-api/rsserver)
 
-This repository is a server code for fetching and searching RSS data efficiently. There are also many useful Go packages to help you develop your own RSS project!
+This repository is a server code for fetching and searching RSS data efficiently. There are also many useful Go packages to help you develop your own RSS project! Our version is automatically released to <https://rss-search-api.herokuapp.com>. We are running the server with Daum RSS. You can try GET apis for example.
 
 ## Table of Contents
 
@@ -26,8 +26,8 @@ This repository is a server code for fetching and searching RSS data efficiently
 
 ## Packages
 
-- [rsserver](https://github.com/shhj1998/rss-search-api/tree/master/rsserver) : Our main package that provides many functionalities to act with our rss database. More information is available on our [documentation](https://godoc.org/github.com/shhj1998/rss-search-api/rsserver).
-- [rssapi](https://github.com/shhj1998/rss-search-api/tree/master/rssapi) : A simple REST api server that uses rsserver package. Available apis are described below.
+- [rsserver](https://github.com/shhj1998/rss-search-api/tree/master/rsserver) - Our main package that provides many features to act with our rss database. More information is available in our [documentation](https://godoc.org/github.com/shhj1998/rss-search-api/rsserver).
+- [rssapi](https://github.com/shhj1998/rss-search-api/tree/master/rssapi) - A simple REST api server that uses rsserver package. Available apis are described below.
 
 ## Getting Start
 
@@ -38,7 +38,7 @@ After downloading the repository, you should enter the following commands to run
 > go run main.go
 ```
 
-Before running, you should make a .env file to connect with your database. The sample .env file is [here](https://github.com/shhj1998/rss-search-api/blob/master/.env.example).
+Before running, you should make a .env file in your root directory to connect with your database. Sample .env file is [here](https://github.com/shhj1998/rss-search-api/blob/master/.env.example).
 
 ## API
 
