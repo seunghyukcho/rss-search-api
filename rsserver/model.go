@@ -17,7 +17,7 @@ type DB struct {
 const (
 	itemSchema = `CREATE TABLE IF NOT EXISTS Item (
 					item_id INT NOT NULL AUTO_INCREMENT,
-					guid VARCHAR(30) NOT NULL UNIQUE,
+					guid VARCHAR(255) NOT NULL UNIQUE,
 					title VARCHAR(255),
 					link VARCHAR(255),
 					description TEXT,
