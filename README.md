@@ -31,14 +31,40 @@ This repository is a server code for fetching and searching RSS data efficiently
 
 ## Getting Start
 
-After downloading the repository, you should enter the following commands to run a rss-search-api server.
-
+Assuming you already have a recent version of Go installed, pull down the code with `go get`.
 ```bash
-> dep ensure
-> go run main.go
+go get github.com/shhj1998/rss-search-api
+```
+Go into the source directory and pull down the project dependencies by using [`dep`](https://github.com/golang/dep):
+```bash
+cd $GOPATH/src/github.com/shhj1998/rss-search-api
+dep ensure
+```
+Now, generate `.env` file in the same directory. It is used to configure database connection. Sample .env file is [here](https://github.com/shhj1998/rss-search-api/blob/master/.env.example).
+```bash
+vim .env
 ```
 
-Before running, you should make a .env file in your root directory to connect with your database. Sample .env file is [here](https://github.com/shhj1998/rss-search-api/blob/master/.env.example).
+Now, run
+```bash
+go run main.go
+```
+
+You will see the following sentences.
+```bash
+INFO : 2019/07/26 23:08:25.163777 main.go:34: Total CPUs : 4
+[GIN-debug] [WARNING] Creating an Engine instance with the Logger and Recovery middleware already attached.
+[GIN-debug] [WARNING] Running in "debug" mode. Switch to "release" mode in production.
+ - using env:	export GIN_MODE=release
+ - using code:	gin.SetMode(gin.ReleaseMode)
+
+[GIN-debug] GET    /api/v1/channel           --> github.com/shhj1998/rss-search-api/rssapi.(*Server).SelectChannels-fm (3 handlers)
+[GIN-debug] GET    /api/v1/channel/items/    --> github.com/shhj1998/rss-search-api/rssapi.(*Server).SelectChannelsWithItems-fm (3 handlers)
+[GIN-debug] GET    /api/v1/channel/items/count/:count --> github.com/shhj1998/rss-search-api/rssapi.(*Server).SelectChannelsWithItems-fm (3 handlers)
+[GIN-debug] POST   /api/v1/channel           --> github.com/shhj1998/rss-search-api/rssapi.(*Server).CreateChannel-fm (3 handlers)
+[GIN-debug] GET    /api/v1/item              --> github.com/shhj1998/rss-search-api/rssapi.(*Server).SelectItems-fm (3 handlers)
+[GIN-debug] Listening and serving HTTP on :80
+```
 
 ## API
 
